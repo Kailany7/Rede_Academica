@@ -1,4 +1,3 @@
-// Cores do app serão definidas aqui
 // Cores do app baseadas no design do Figma
 const Colors = {
   // Cores principais
