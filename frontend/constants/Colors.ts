@@ -12,7 +12,7 @@ export const Colors = {
   
   error: '#d4183d',           // vermelho (botão de sair/deletar/erros)
 
-  // variações de azul para o icon, a depender da primeira letra do nome do usuário
+  // variações de azul para o icon
   avatarPalette: [
     '#0A4174', // azul escuro
     '#49769F', // azul médio
