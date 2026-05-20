@@ -1,14 +1,16 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
-import Colors from '../constants/Colors'
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import Colors from "../constants/Colors";
 
-// Props que o Header pode receber
 interface HeaderProps {
-  showNotification?: boolean  // mostrar ícone de notificação
-  showMenu?: boolean          // mostrar ícone de menu
+  showNotification?: boolean; // mostrar ícone de notificação
+  showMenu?: boolean; // mostrar ícone de menu
 }
 
-export default function Header({ showNotification = true, showMenu = true }: HeaderProps) {
+export default function Header({
+  showNotification = true,
+  showMenu = true,
+}: HeaderProps) {
   return (
     <View style={styles.container}>
       {/* Logo e título */}
@@ -26,7 +28,11 @@ export default function Header({ showNotification = true, showMenu = true }: Hea
       <View style={styles.iconsContainer}>
         {showNotification && (
           <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="notifications-outline" size={24} color={Colors.foreground} />
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={Colors.foreground}
+            />
           </TouchableOpacity>
         )}
         {showMenu && (
@@ -36,14 +42,14 @@ export default function Header({ showNotification = true, showMenu = true }: Hea
         )}
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: Colors.background,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -51,8 +57,8 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
   },
   logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
   },
   logoIcon: {
@@ -60,17 +66,17 @@ const styles = StyleSheet.create({
     height: 40,
     backgroundColor: Colors.primary,
     borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   logoText: {
     color: Colors.primaryForeground,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 14,
   },
   title: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.foreground,
     lineHeight: 18,
   },
@@ -80,10 +86,10 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   iconsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
   },
   iconButton: {
     padding: 6,
   },
-})
+});

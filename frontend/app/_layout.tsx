@@ -14,7 +14,7 @@ function useAuth() {
     // Simula checar token salvo
     const checkAuth = async () => {
       await new Promise((res) => setTimeout(res, 500));
-      setIsAuthenticated(true); // troque para true para pular login
+      setIsAuthenticated(false); // troque para true para pular login
       setIsLoading(false);
     };
     checkAuth();
@@ -35,11 +35,11 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
     const inAuthGroup = segments[0] === "(auth)";
 
-    if (!isAuthenticated && !inAuthGroup) {
-      router.replace("/(auth)/login");
-    } else if (isAuthenticated && inAuthGroup) {
-      router.replace("/(app)/(tabs)/feed");
-    }
+    //  if (!isAuthenticated && !inAuthGroup) {
+    // router.replace("/(auth)/login");
+    //} else if (isAuthenticated && inAuthGroup) {
+    //router.replace("/(app)/(tabs)/feed");
+    // }
   }, [isLoading, isAuthenticated, segments]);
 
   if (isLoading) {
