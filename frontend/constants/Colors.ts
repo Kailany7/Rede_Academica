@@ -22,7 +22,10 @@ const Colors = {
   // Outros
   muted: '#E8F2F7',          // Fundo do botão não selecionado
   secondary: '#7BBDE8',      // Azul médio
-  accent: '#4E8EA2',         // Azul accent
+  accent: '#4E8EA2', // Azul accent
+
+  destructive: '#d4183d',    // Vermelho para ações destrutivas
+
 }
 
 export default Colors

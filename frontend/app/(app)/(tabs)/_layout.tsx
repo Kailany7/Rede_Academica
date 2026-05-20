@@ -1,14 +1,17 @@
 import { Tabs } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { TouchableOpacity, StyleSheet } from 'react-native'
+import { TouchableOpacity, StyleSheet, View } from 'react-native'
 import Colors from '../../../constants/Colors'
 
-// Botão central 
+// Botão central personalizado — o + azul redondo
 function CustomAddButton({ onPress }: { onPress: () => void }) {
   return (
-    <TouchableOpacity style={styles.addButton} onPress={onPress}>
-      <Ionicons name="add" size={32} color={Colors.primaryForeground} />
-    </TouchableOpacity>
+    // View container para centralizar o botão na tab bar
+    <View style={styles.addButtonContainer}>
+      <TouchableOpacity style={styles.addButton} onPress={onPress}>
+        <Ionicons name="add" size={32} color={Colors.primaryForeground} />
+      </TouchableOpacity>
+    </View>
   )
 }
 
@@ -62,7 +65,17 @@ export default function TabsLayout() {
             <CustomAddButton onPress={props.onPress as () => void} />
           ),
         }}
+      />
 
+      {/* Aba Rede de Conexões */}
+      <Tabs.Screen
+        name="rede-conexoes"
+        options={{
+          title: 'Conexões',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="people-outline" size={size} color={color} />
+          ),
+        }}
       />
 
       {/* Aba Perfil */}
@@ -81,6 +94,12 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
+  // container que centraliza o botão + na tab bar
+  addButtonContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   addButton: {
     width: 56,
     height: 56,
