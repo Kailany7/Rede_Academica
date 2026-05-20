@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native';
 import Colors from '../../../constants/Colors'
 
 const styles = StyleSheet.create({
@@ -8,14 +8,21 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
+  },
+
+  // Centraliza e limita largura na web — mesmo padrão do cadastro
+  innerContent: {
+    width: "90%",
+    maxWidth: 600,
+    alignSelf: "center",
     paddingTop: 12,
+    paddingBottom: 24,
   },
 
   // Campo de busca
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: Colors.card,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -29,17 +36,18 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     color: Colors.foreground,
+    outlineColor: "transparent", // remove a borda azul no foco (web)
   },
 
   // Botões de filtro
   filterRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
     marginBottom: 16,
   },
   filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -54,7 +62,7 @@ const styles = StyleSheet.create({
   },
   filterButtonText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: Colors.cardForeground,
   },
   filterButtonTextActive: {
@@ -68,7 +76,7 @@ const styles = StyleSheet.create({
   },
   clearButtonText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: Colors.cardForeground,
   },
 
@@ -84,16 +92,9 @@ const styles = StyleSheet.create({
   },
   filterLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.foreground,
     marginBottom: 8,
-  },
-  pickerContainer: {
-    backgroundColor: Colors.inputBackground,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 12,
-    overflow: 'hidden',
   },
 
   // Estado vazio
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     padding: 48,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   emptyIconContainer: {
@@ -111,20 +112,20 @@ const styles = StyleSheet.create({
     height: 80,
     backgroundColor: Colors.muted,
     borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 16,
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.foreground,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
     color: Colors.mutedForeground,
-    textAlign: 'center',
+    textAlign: "center",
   },
 
   // Resultados
@@ -139,8 +140,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     padding: 16,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     gap: 12,
     marginBottom: 8,
   },
@@ -148,21 +149,21 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   resultInfo: {
     flex: 1,
   },
   resultHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 4,
   },
   resultTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.foreground,
   },
   resultBadge: {
@@ -179,9 +180,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   resultTags: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
   },
   resultTag: {
     fontSize: 12,
@@ -191,6 +192,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 20,
   },
-})
+});
 
-export default styles
+export default styles;

@@ -2,7 +2,6 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import Colors from '../constants/Colors'
 
-// Props que o Header pode receber
 interface HeaderProps {
   showNotification?: boolean  // mostrar ícone de notificação
   showMenu?: boolean          // mostrar ícone de menu
