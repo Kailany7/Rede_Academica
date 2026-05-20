@@ -8,10 +8,9 @@ import {
 } from "react-native";
 import { widthPercentageToDP as wp } from "react-native-responsive-screen";
 import { Ionicons } from "@expo/vector-icons";
-import Header from '../../../components/Header';
-import Colors from '../../../constants/Colors';
-import styles from '../styles/buscaStyles'
-
+import Header from "../../../components/Header";
+import Colors from "../../../constants/Colors";
+import styles from "../styles/buscaStyles";
 
 type ResultType = "user" | "post" | "group";
 
@@ -21,7 +20,7 @@ interface SearchResult {
   title: string;
   subtitle: string;
   avatarColor: string;
-  course?: string; 
+  course?: string;
   semester?: string;
 }
 
@@ -85,7 +84,6 @@ const semesters: string[] = [
 ];
 
 export default function BuscaScreen() {
-
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [selectedCourse, setSelectedCourse] =
