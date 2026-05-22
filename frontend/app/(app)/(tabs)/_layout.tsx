@@ -1,38 +1,94 @@
 import { Tabs } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import { TouchableOpacity, StyleSheet, View } from 'react-native'
+import {
+  TouchableOpacity,
+  StyleSheet,
+  View
+} from 'react-native'
+
 import Colors from '../../../constants/Colors'
 
-// Botão central personalizado — o + azul redondo
-function CustomAddButton({ onPress }: { onPress: () => void }) {
+
+
+// Botão central customizado
+function CustomAddButton({
+  onPress
+}: {
+  onPress: () => void
+}) {
   return (
-    // View container para centralizar o botão na tab bar
+
     <View style={styles.addButtonContainer}>
-      <TouchableOpacity style={styles.addButton} onPress={onPress}>
-        <Ionicons name="add" size={32} color={Colors.primaryForeground} />
+
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={onPress}
+        activeOpacity={0.9}
+      >
+
+        {/* Círculo branco interno */}
+        <View style={styles.innerCircle}>
+
+          <Ionicons
+            name="add"
+            size={30}
+            color="#0A4174"
+          />
+
+        </View>
+
       </TouchableOpacity>
+
     </View>
   )
 }
-
-import {
-  TouchableOpacity,
-  View
-} from 'react-native'
 
 export default function TabsLayout() {
 
   return (
 
-    <Tabs>
+    <Tabs
+
+      screenOptions={{
+
+        headerShown: false,
+
+        tabBarActiveTintColor: Colors.primary,
+
+        tabBarInactiveTintColor:
+          Colors.mutedForeground,
+
+        tabBarStyle: {
+
+          backgroundColor: Colors.card,
+
+          borderTopColor: Colors.border,
+
+          height: 60,
+
+          paddingBottom: 8,
+        },
+
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '500',
+        },
+      }}
+    >
 
       {/* FEED */}
       <Tabs.Screen
         name="feed"
-        options={{
-          title: 'Feed',
 
-          tabBarIcon: ({ color, size }) => (
+        options={{
+
+          title: 'Início',
+
+          tabBarIcon: ({
+            color,
+            size
+          }) => (
+
             <Ionicons
               name="home-outline"
               size={size}
@@ -42,151 +98,84 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* CRIAR PUBLICAÇÃO */}
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.mutedForeground,
-        tabBarStyle: {
-          backgroundColor: Colors.card,
-          borderTopColor: Colors.border,
-          height: 60,
-          paddingBottom: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '500',
-        },
-      }}
-    >
-      {/* Aba Início */}
-      <Tabs.Screen
-        name="feed"
-        options={{
-          title: 'Início',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
-        }}
-      />
-
-      {/* Aba Buscar */}
+      {/* BUSCA */}
       <Tabs.Screen
         name="busca"
+
         options={{
+
           title: 'Buscar',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="search-outline" size={size} color={color} />
+
+          tabBarIcon: ({
+            color,
+            size
+          }) => (
+
+            <Ionicons
+              name="search-outline"
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
 
-      {/* Botão central + */}
+      {/* CRIAR PUBLICAÇÃO */}
       <Tabs.Screen
         name="criar-publicacao"
 
         options={{
+
           title: '',
 
-          // Remove texto
           tabBarLabel: '',
 
-          // Botão customizado
-          tabBarButton: (props: any) => (
-
-            <TouchableOpacity
-              {...props}
-              activeOpacity={0.9}
-
-              style={{
-                top: -22,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'transparent',
-              }}
-            >
-
-              {/* Círculo azul externo */}
-              <View
-                style={{
-                  width: 72,
-                  height: 72,
-
-                  borderRadius: 36,
-
-                  backgroundColor: '#0A4174',
-
-                  justifyContent: 'center',
-                  alignItems: 'center',
-
-                  // Sombra
-                  shadowColor: '#000',
-                  shadowOffset: {
-                    width: 0,
-                    height: 6,
-                  },
-
-                  shadowOpacity: 0.18,
-                  shadowRadius: 8,
-
-                  elevation: 8,
-                }}
-              >
-
-                {/* Círculo branco interno */}
-                <View
-                  style={{
-                    width: 54,
-                    height: 54,
-
-                    borderRadius: 27,
-
-                    backgroundColor: '#FFFFFF',
-
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-
-                  {/* Ícone + */}
-                  <Ionicons
-                    name="add"
-                    size={30}
-                    color="#0A4174"
-                  />
-
-                </View>
-              </View>
-            </TouchableOpacity>
-          ),
-        }}
-      />
-      {/* PERFIL */}
           tabBarButton: (props) => (
-            <CustomAddButton onPress={props.onPress as () => void} />
+
+            <CustomAddButton
+              onPress={
+                props.onPress as () => void
+              }
+            />
           ),
         }}
       />
 
-      {/* Aba Rede de Conexões */}
+      {/* REDE DE CONEXÕES */}
       <Tabs.Screen
         name="rede-conexoes"
+
         options={{
+
           title: 'Conexões',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people-outline" size={size} color={color} />
+
+          tabBarIcon: ({
+            color,
+            size
+          }) => (
+
+            <Ionicons
+              name="people-outline"
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
 
-      {/* Aba Perfil */}
+      {/* PERFIL */}
       <Tabs.Screen
         name="perfil"
+
         options={{
+
           title: 'Perfil',
 
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({
+            color,
+            size
+          }) => (
+
             <Ionicons
               name="person-outline"
               size={size}
@@ -199,27 +188,63 @@ export default function TabsLayout() {
     </Tabs>
   )
 }
-}
 
 const styles = StyleSheet.create({
-  // container que centraliza o botão + na tab bar
+
+  // Container botão +
   addButtonContainer: {
+
     flex: 1,
+
     alignItems: 'center',
+
     justifyContent: 'center',
   },
+
+  // Botão azul externo
   addButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
+
+    width: 72,
+
+    height: 72,
+
+    borderRadius: 36,
+
+    backgroundColor: '#0A4174',
+
     justifyContent: 'center',
-    marginBottom: 20,
+
+    alignItems: 'center',
+
+    marginBottom: 28,
+
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 6,
+
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+
+    shadowOpacity: 0.18,
+
+    shadowRadius: 8,
+
+    elevation: 8,
+  },
+
+  // Círculo branco interno
+  innerCircle: {
+
+    width: 54,
+
+    height: 54,
+
+    borderRadius: 27,
+
+    backgroundColor: '#FFFFFF',
+
+    justifyContent: 'center',
+
+    alignItems: 'center',
   },
 })
