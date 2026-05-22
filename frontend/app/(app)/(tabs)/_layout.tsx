@@ -98,6 +98,8 @@ export default function TabsLayout() {
         }}
       />
 
+
+
       {/* BUSCA */}
       <Tabs.Screen
         name="busca"
@@ -156,6 +158,23 @@ export default function TabsLayout() {
 
             <Ionicons
               name="people-outline"
+              size={size}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* VAGAS */}
+
+      <Tabs.Screen
+        name="vagas"
+        options={{
+          title: 'Vagas',
+
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons
+              name="briefcase-outline"
               size={size}
               color={color}
             />
