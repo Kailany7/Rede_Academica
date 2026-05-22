@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Colors from '../constants/Colors'
+
 
 interface HeaderProps {
   temNotificacao?: boolean  // controla se aparece a bolinha vermelha
@@ -10,8 +12,8 @@ interface HeaderProps {
 
 export default function Header({ temNotificacao = false }: HeaderProps) {
   const router = useRouter()
-
-  // controla se o menu está aberto ou fechado
+  const insets = useSafeAreaInsets()
+  
   const [menuAberto, setMenuAberto] = useState<boolean>(false)
 
   // volta para o login ao clicar em Sair
@@ -21,7 +23,8 @@ export default function Header({ temNotificacao = false }: HeaderProps) {
   }
 
   return (
-    <View style={styles.container}>
+    
+    <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
 
       {/* Logo e título */}
       <View style={styles.logoContainer}>
@@ -65,7 +68,8 @@ export default function Header({ temNotificacao = false }: HeaderProps) {
           style={styles.modalOverlay}
           onPress={() => setMenuAberto(false)}
         >
-          <View style={styles.menuCard}>
+          <View style={[styles.menuCard, { top: insets.top + 60 }]}>
+          {/* top dinâmico para o menu abrir no lugar certo */}
 
             {/* Grupos — fase 2 */}
             <TouchableOpacity
@@ -104,7 +108,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: Colors.background,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
@@ -160,7 +164,6 @@ const styles = StyleSheet.create({
   },
   menuCard: {
     position: 'absolute',
-    top: 60,
     right: 16,
     backgroundColor: Colors.card,
     borderRadius: 12,
