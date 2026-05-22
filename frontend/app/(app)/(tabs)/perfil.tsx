@@ -10,6 +10,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import PostCard from '../../../components/PostCard'
+import { ExperienceCard } from '../../../components/cardExperiencia'
+import { posts as MOCK_POSTS } from '../../../data/posts'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -19,6 +22,7 @@ interface UserProfile {
   course: string;
   semester: string;
   bio: string;
+  experience: string;
   email: string;
   avatarColor: string;
   connections: number;
@@ -33,6 +37,7 @@ const MOCK_USER: UserProfile = {
   course: "Ciência da Computação",
   semester: "5º Semestre",
   bio: "Estudante apaixonado por tecnologia",
+  experience: "Desenvolvedor Front-End • Projeto Acadêmico; Estagiário em Suporte Técnico • Empresa XYZ; Voluntário em ONG de Inclusão Digital",
   email: "admin@gmail.com",
   avatarColor: "#2E7D8C",
   connections: 48,
@@ -69,7 +74,30 @@ function InfoRow({ icon, label, value }: InfoRowProps) {
 export default function PerfilScreen() {
   const [user] = useState<UserProfile>(MOCK_USER);
   const [connected, setConnected] = useState(false);
+  const [posts, setPosts] = useState(
+
+  MOCK_POSTS.filter(
+    (post) => post.author === user.name
+  )
+
+)
   const router = useRouter();
+  const handleLike = (id: string) => {
+
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === id
+          ? {
+            ...post,
+            liked: !post.liked,
+            likes: post.liked
+              ? post.likes - 1
+              : post.likes + 1
+          }
+          : post
+      )
+    )
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -154,6 +182,47 @@ export default function PerfilScreen() {
               label="Semestre"
               value={user.semester}
             />
+            <ExperienceCard
+              title="Desenvolvedor Front-End"
+              company="Banco do Brasil · Estágio"
+              period="jan de 2025 · o momento"
+              description="Desenvolvimento de interfaces mobile com React Native, Expo Router e TypeScript. Criação de telas responsivas, integração de componentes reutilizáveis e versionamento com Git/GitHub."
+            />
+
+            <ExperienceCard
+              title="Monitor de Programação"
+              company="UNIFACISA · Meio período"
+              period="ago de 2024 · dez de 2024 · 5 meses"
+              description="Auxílio a alunos nas disciplinas de lógica de programação e estrutura de dados. Suporte em JavaScript, algoritmos e resolução de exercícios práticos."
+            />
+
+            <ExperienceCard
+              title="Desenvolvedor Back-End"
+              company="UNIFACISA · Estágio"
+              period="fev de 2024 · out de 2024 · 9 meses"
+              description="Participação no desenvolvimento de APIs REST utilizando Node.js, Express e MongoDB. Implementação de autenticação, integração com banco de dados e testes de rotas."
+            />
+          </View>
+          {/* POSTS */}
+
+          <View style={styles.postsContainer}>
+            <Text style={styles.postsTitle}>Publicações</Text>
+
+            {posts.map((post) => (
+              <PostCard
+                key={post.id}
+                id={post.id}
+                author={post.author}
+                course={post.course}
+                content={post.content}
+                timestamp={post.timestamp}
+                likes={post.likes}
+                comments={post.comments}
+                liked={post.liked}
+                avatarColor={post.avatarColor}
+                onLike={handleLike}
+              />
+            ))}
           </View>
         </View>
       </ScrollView>
@@ -323,5 +392,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#2C3E50",
     flex: 1,
+  },
+  postsContainer: {
+    width: '100%',
+    marginTop: 24,
+    gap: 12
+  },
+
+  postsTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1B3A5C',
+    marginBottom: 8
   },
 });
