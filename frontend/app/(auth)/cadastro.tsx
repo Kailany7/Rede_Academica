@@ -14,10 +14,18 @@ import { widthPercentageToDP as wp } from 'react-native-responsive-screen'
 import Colors from '../../constants/Colors'
 import styles from './cadastroStyles'
 
+interface FormData {
+  nome: string
+  email: string
+  senha: string
+  curso: string
+  bio: string
+}
+
 export default function CadastroScreen() {
   const router = useRouter()
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     nome: '',
     email: '',
     senha: '',
@@ -25,15 +33,22 @@ export default function CadastroScreen() {
     bio: ''
   })
 
+  const handleChange = (field: keyof FormData, value: string): void => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      // no iOS o comportamento é diferente do Android
     >
-      <ScrollView showsVerticalScrollIndicator={false} 
-      contentContainerStyle={styles.scrollContent}>
-
-        {/* Topo azul com ícone e título */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Topo com ícone e título */}
         <View style={styles.header}>
           <View style={styles.iconContainer}>
             <Ionicons name="school" size={wp('10%')} color={Colors.primaryForeground} />
@@ -42,10 +57,8 @@ export default function CadastroScreen() {
           <Text style={styles.subtitle}>Conecte-se com estudantes e professores</Text>
         </View>
 
-        {/* Card branco com formulário */}
+      
         <View style={styles.card}>
-
-          {/* Toggle Login / Cadastro */}
           <View style={styles.toggleContainer}>
             <TouchableOpacity
               style={styles.toggleButtonInactive}
@@ -65,7 +78,10 @@ export default function CadastroScreen() {
             placeholder="Digite seu nome completo"
             placeholderTextColor={Colors.mutedForeground}
             value={formData.nome}
-            onChangeText={(text) => setFormData({ ...formData, nome: text })}
+            onChangeText={(text) => handleChange('nome', text)}
+            // handleChange atualiza só o campo 'nome'
+            autoCapitalize="words"
+            // words: capitaliza cada palavra do nome
           />
 
           {/* Campo Email */}
@@ -74,10 +90,11 @@ export default function CadastroScreen() {
             style={styles.input}
             placeholder="Digite seu email institucional"
             placeholderTextColor={Colors.mutedForeground}
+            value={formData.email}
+            onChangeText={(text) => handleChange('email', text)}
             keyboardType="email-address"
             autoCapitalize="none"
-            value={formData.email}
-            onChangeText={(text) => setFormData({ ...formData, email: text })}
+            // none: não capitaliza email
           />
 
           {/* Campo Senha */}
@@ -86,9 +103,10 @@ export default function CadastroScreen() {
             style={styles.input}
             placeholder="Digite sua senha"
             placeholderTextColor={Colors.mutedForeground}
-            secureTextEntry
             value={formData.senha}
-            onChangeText={(text) => setFormData({ ...formData, senha: text })}
+            onChangeText={(text) => handleChange('senha', text)}
+            secureTextEntry
+            // secureTextEntry: esconde o texto da senha
           />
 
           {/* Campo Curso */}
@@ -98,7 +116,8 @@ export default function CadastroScreen() {
             placeholder="Digite seu curso (ex: Sistema de Informação)"
             placeholderTextColor={Colors.mutedForeground}
             value={formData.curso}
-            onChangeText={(text) => setFormData({ ...formData, curso: text })}
+            onChangeText={(text) => handleChange('curso', text)}
+            autoCapitalize="words"
           />
 
           {/* Campo Bio */}
@@ -107,10 +126,13 @@ export default function CadastroScreen() {
             style={styles.inputBio}
             placeholder="Fale um pouco sobre você e seus interesses acadêmicos..."
             placeholderTextColor={Colors.mutedForeground}
-            multiline
-            numberOfLines={4}
             value={formData.bio}
-            onChangeText={(text) => setFormData({ ...formData, bio: text })}
+            onChangeText={(text) => handleChange('bio', text)}
+            multiline
+            // multiline: permite múltiplas linhas
+            numberOfLines={4}
+            textAlignVertical="top"
+
           />
 
           {/* Botão Criar conta */}
