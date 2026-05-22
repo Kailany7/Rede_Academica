@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons'
 
 import Header from '../../../components/Header'
 import Colors from '../../../constants/Colors'
-import styles from './buscaStyles'
+import styles from '../styles/buscaStyles'
 
 const usuarios = [
   {
