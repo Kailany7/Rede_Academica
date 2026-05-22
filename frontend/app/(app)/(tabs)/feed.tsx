@@ -15,7 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import Stories from "../../../components/Stories";
 import Post from "../../../components/PostCard";
-
+import { usePosts } from '../../../contexts/postContext'
 // ─── Tipos ─────────────────────────────────────────────────────────────
 
 interface Comment {
@@ -106,6 +106,9 @@ export default function FeedScreen() {
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  
+  const { newPosts } = usePosts()
+
 
   // Simulação carregamento
   const loadPosts = () => {
@@ -120,6 +123,11 @@ export default function FeedScreen() {
   useEffect(() => {
     loadPosts();
   }, []);
+
+  const allPosts = [
+  ...newPosts,
+  ...posts
+]
 
   // Atualizar feed
   const handleRefresh = () => {
@@ -189,7 +197,7 @@ export default function FeedScreen() {
         </View>
       ) : (
         <FlatList
-          data={posts}
+          data={allPosts}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
