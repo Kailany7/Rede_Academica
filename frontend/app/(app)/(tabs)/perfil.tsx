@@ -76,11 +76,11 @@ export default function PerfilScreen() {
   const [connected, setConnected] = useState(false);
   const [posts, setPosts] = useState(
 
-  MOCK_POSTS.filter(
-    (post) => post.author === user.name
-  )
+    MOCK_POSTS.filter(
+      (post) => post.author === user.name
+    )
 
-)
+  )
   const router = useRouter();
   const handleLike = (id: string) => {
 
@@ -203,6 +203,57 @@ export default function PerfilScreen() {
               description="Participação no desenvolvimento de APIs REST utilizando Node.js, Express e MongoDB. Implementação de autenticação, integração com banco de dados e testes de rotas."
             />
           </View>
+          {/* HABILIDADES */}
+          <View style={styles.skillsSection}>
+
+            <View style={styles.skillsHeader}>
+              <Text style={styles.skillsTitle}>Habilidades</Text>
+
+              <TouchableOpacity style={styles.editSkillsButton}>
+                <Ionicons
+                  name="create-outline"
+                  size={16}
+                  color="#1B4F8A"
+                />
+
+                <Text style={styles.editSkillsText}>
+                  Editar
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.skillsContainer}>
+
+              {[
+                'React Native',
+                'TypeScript',
+                'JavaScript',
+                'Node.js',
+                'MongoDB',
+                'Git/GitHub',
+                'UI/UX',
+                'Comunicação',
+                'Trabalho em equipe',
+                'Resolução de problemas'
+              ].map((skill) => (
+
+                <View
+                  key={skill}
+                  style={styles.skillTag}
+                >
+                  <Text style={styles.skillText}>
+                    {skill}
+                  </Text>
+                </View>
+
+              ))}
+
+            </View>
+
+          </View>
+
+
+
           {/* POSTS */}
 
           <View style={styles.postsContainer}>
@@ -405,4 +456,70 @@ const styles = StyleSheet.create({
     color: '#1B3A5C',
     marginBottom: 8
   },
+
+  skillsSection: {
+  width: '100%',
+  backgroundColor: '#FFFFFF',
+  borderRadius: 12,
+  padding: 16,
+  marginTop: 12,
+
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 1
+  },
+
+  shadowOpacity: 0.05,
+  shadowRadius: 3,
+  elevation: 1,
+},
+
+skillsHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: 14,
+},
+
+skillsTitle: {
+  fontSize: 16,
+  fontWeight: '700',
+  color: '#1B3A5C',
+},
+
+editSkillsButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 4,
+},
+
+editSkillsText: {
+  fontSize: 13,
+  fontWeight: '600',
+  color: '#1B4F8A',
+},
+
+skillsContainer: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  gap: 10,
+},
+
+skillTag: {
+  backgroundColor: '#E8F1F8',
+  borderWidth: 1,
+  borderColor: '#D4E4F2',
+
+  paddingVertical: 8,
+  paddingHorizontal: 14,
+
+  borderRadius: 999,
+},
+
+skillText: {
+  color: '#1B4F8A',
+  fontSize: 13,
+  fontWeight: '600',
+},
 });
