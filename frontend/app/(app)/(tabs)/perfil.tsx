@@ -21,6 +21,7 @@ interface UserProfile {
   course: string;
   semester: string;
   bio: string;
+  experience: string;
   email: string;
   avatarColor: string;
   connections: number;
@@ -35,6 +36,7 @@ const MOCK_USER: UserProfile = {
   course: "Ciência da Computação",
   semester: "5º Semestre",
   bio: "Estudante apaixonado por tecnologia",
+  experience: "Desenvolvedor Front-End • Projeto Acadêmico; Estagiário em Suporte Técnico • Empresa XYZ; Voluntário em ONG de Inclusão Digital",
   email: "admin@gmail.com",
   avatarColor: "#2E7D8C",
   connections: 48,
@@ -178,6 +180,11 @@ export default function PerfilScreen() {
               icon="calendar-outline"
               label="Semestre"
               value={user.semester}
+            />
+            <InfoRow
+              icon="briefcase-outline"
+              label="Experiência"
+              value={user.experience}
             />
           </View>
           {/* POSTS */}
