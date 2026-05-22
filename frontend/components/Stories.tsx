@@ -58,7 +58,7 @@ export default function Stories({
     },
     {
       id: '2',
-      user: 'Pedro Lima',
+      user: 'Pedro Lira',
       avatarColor: '#4E8EA2',
       viewed: false
     },
