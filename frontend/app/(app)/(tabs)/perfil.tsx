@@ -10,6 +10,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import PostCard from '../../../components/PostCard'
+import { posts as MOCK_POSTS } from '../../../data/posts'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -69,7 +71,30 @@ function InfoRow({ icon, label, value }: InfoRowProps) {
 export default function PerfilScreen() {
   const [user] = useState<UserProfile>(MOCK_USER);
   const [connected, setConnected] = useState(false);
+  const [posts, setPosts] = useState(
+
+  MOCK_POSTS.filter(
+    (post) => post.author === user.name
+  )
+
+)
   const router = useRouter();
+  const handleLike = (id: string) => {
+
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === id
+          ? {
+            ...post,
+            liked: !post.liked,
+            likes: post.liked
+              ? post.likes - 1
+              : post.likes + 1
+          }
+          : post
+      )
+    )
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -154,6 +179,35 @@ export default function PerfilScreen() {
               label="Semestre"
               value={user.semester}
             />
+          </View>
+          {/* POSTS */}
+
+          <View style={styles.postsContainer}>
+
+            <Text style={styles.postsTitle}>
+              Publicações
+            </Text>
+
+            {
+              posts.map((post) => (
+
+                <PostCard
+                  key={post.id}
+                  id={post.id}
+                  author={post.author}
+                  course={post.course}
+                  content={post.content}
+                  timestamp={post.timestamp}
+                  likes={post.likes}
+                  comments={post.comments}
+                  liked={post.liked}
+                  avatarColor={post.avatarColor}
+                  onLike={handleLike}
+                />
+
+              ))
+            }
+
           </View>
         </View>
       </ScrollView>
@@ -323,5 +377,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#2C3E50",
     flex: 1,
+  },
+  postsContainer: {
+    width: '100%',
+    marginTop: 24,
+    gap: 12
+  },
+
+  postsTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1B3A5C',
+    marginBottom: 8
   },
 });

@@ -1,214 +1,117 @@
 import React, { useState, useEffect } from "react";
+
 import {
   View,
   Text,
   FlatList,
   StyleSheet,
-  TouchableOpacity,
   StatusBar,
-  ActivityIndicator,
   RefreshControl,
 } from "react-native";
+
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import { Ionicons } from "@expo/vector-icons";
-import Stories from '../../../components/Stories'
 
-// ─── Tipos ───────────────────────────────────────────────────────────────────
+import Stories from "../../../components/Stories";
+import Post from "../../../components/PostCard";
 
-interface Post {
+// ─── Tipos ─────────────────────────────────────────────────────────────
+
+interface Comment {
   id: string;
   author: string;
-  initials: string;
-  course: string;
-  time: string;
+  authorAvatar: string;
   content: string;
-  likes: number;
-  comments: number;
-  liked: boolean;
-  avatarColor: string;
+  timestamp: string;
 }
 
-// ─── Dados mockados ───────────────────────────────────────────────────────────
+interface FeedPost {
+  id: string;
+  author: string;
+  authorCourse: string;
+  authorAvatar: string;
+  content: string;
+  timestamp: string;
+  likes: number;
+  comments: Comment[];
+  isLiked: boolean;
+}
 
-const MOCK_POSTS: Post[] = [
+// ─── Dados Mockados ───────────────────────────────────────────────────
+
+const MOCK_POSTS: FeedPost[] = [
   {
     id: "1",
     author: "Maria Santos",
-    initials: "MS",
-    course: "Engenharia de Software",
-    time: "Há 2 horas",
+    authorCourse: "Engenharia de Software",
+    authorAvatar: "#1B4F8A",
+    timestamp: "Há 2 horas",
     content:
-      "Pessoal, alguém sabe algum material bom sobre algoritmos de ordenação? Estou estudando para a prova e queria me aprofundar mais no tema!",
+      "Pessoal, alguém sabe algum material bom sobre algoritmos de ordenação?",
     likes: 12,
-    comments: 1,
-    liked: false,
-    avatarColor: "#1B4F8A",
+    isLiked: false,
+    comments: [
+      {
+        id: "1",
+        author: "Pedro",
+        authorAvatar: "#2E7D8C",
+        content: "Tenho um PDF muito bom sobre isso!",
+        timestamp: "Agora",
+      },
+    ],
   },
+
   {
     id: "2",
     author: "Carlos Oliveira",
-    initials: "CO",
-    course: "Sistemas de Informação",
-    time: "Há 5 horas",
+    authorCourse: "Sistemas de Informação",
+    authorAvatar: "#2E7D8C",
+    timestamp: "Há 5 horas",
     content:
-      "Acabei de terminar meu projeto de banco de dados! Foi desafiador, mas aprendi muito sobre normalização e otimização de queries. Alguém mais trabalhando com SQL?",
+      "Acabei de terminar meu projeto de banco de dados! Foi desafiador mas aprendi muito.",
     likes: 8,
-    comments: 0,
-    liked: false,
-    avatarColor: "#2E7D8C",
+    isLiked: false,
+    comments: [],
   },
+
   {
     id: "3",
     author: "Ana Paula",
-    initials: "AP",
-    course: "Ciência da Computação",
-    time: "Há 8 horas",
+    authorCourse: "Ciência da Computação",
+    authorAvatar: "#5B3FA6",
+    timestamp: "Há 8 horas",
     content:
-      "Galera, tem monitoria de Cálculo II amanhã às 14h na sala 203. Quem quiser ir é só aparecer! Vamos revisar integrais e séries.",
+      "Galera, tem monitoria de Cálculo II amanhã às 14h na sala 203.",
     likes: 24,
-    comments: 5,
-    liked: true,
-    avatarColor: "#5B3FA6",
+    isLiked: true,
+    comments: [],
   },
   {
     id: "4",
-    author: "Lucas Ferreira",
-    initials: "LF",
-    course: "Engenharia de Software",
-    time: "Há 10 horas",
-    content:
-      "Acabei de subir meu primeiro projeto React Native no GitHub! Foi bem trabalhoso mas valeu muito a experiência. Compartilho o link pra quem quiser dar uma olhada.",
-    likes: 31,
-    comments: 7,
-    liked: false,
-    avatarColor: "#C0392B",
+    author: "Usuário",
+    authorCourse: "Ciência da Computação",
+    authorAvatar: "#2E7D8C",
+    timestamp: "Agora",
+    content: "Esse é meu primeiro post na rede acadêmica!",
+    likes: 3,
+    isLiked: false,
+    comments: [],
   },
 ];
 
-// ─── Skeleton Loader ──────────────────────────────────────────────────────────
-
-function SkeletonCard() {
-  return (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View style={[styles.avatarSkeleton, styles.skeleton]} />
-        <View style={{ flex: 1, gap: 6 }}>
-          <View
-            style={[
-              styles.skeleton,
-              { height: 13, width: "55%", borderRadius: 4 },
-            ]}
-          />
-          <View
-            style={[
-              styles.skeleton,
-              { height: 11, width: "40%", borderRadius: 4 },
-            ]}
-          />
-        </View>
-      </View>
-      <View style={{ gap: 6, marginTop: 10 }}>
-        <View
-          style={[
-            styles.skeleton,
-            { height: 11, width: "100%", borderRadius: 4 },
-          ]}
-        />
-        <View
-          style={[
-            styles.skeleton,
-            { height: 11, width: "90%", borderRadius: 4 },
-          ]}
-        />
-        <View
-          style={[
-            styles.skeleton,
-            { height: 11, width: "70%", borderRadius: 4 },
-          ]}
-        />
-      </View>
-      <View
-        style={[
-          styles.skeleton,
-          { height: 1, marginVertical: 12, borderRadius: 1 },
-        ]}
-      />
-      <View style={{ flexDirection: "row", gap: 20 }}>
-        <View
-          style={[styles.skeleton, { height: 13, width: 50, borderRadius: 4 }]}
-        />
-        <View
-          style={[styles.skeleton, { height: 13, width: 50, borderRadius: 4 }]}
-        />
-      </View>
-    </View>
-  );
-}
-
-// ─── Card de Post ─────────────────────────────────────────────────────────────
-
-interface PostCardProps {
-  post: Post;
-  onLike: (id: string) => void;
-}
-
-function PostCard({ post, onLike }: PostCardProps) {
-  return (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <View style={[styles.avatar, { backgroundColor: post.avatarColor }]}>
-          <Text style={styles.avatarText}>{post.initials}</Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.authorName}>{post.author}</Text>
-          <Text style={styles.authorMeta}>{post.course}</Text>
-          <Text style={styles.authorMeta}>{post.time}</Text>
-        </View>
-      </View>
-
-      <Text style={styles.postContent}>{post.content}</Text>
-
-      <View style={styles.divider} />
-
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.actionBtn}
-          onPress={() => onLike(post.id)}
-          activeOpacity={0.7}
-        >
-          <Ionicons
-            name={post.liked ? "heart" : "heart-outline"}
-            size={20}
-            color={post.liked ? "#E74C3C" : "#888"}
-          />
-          <Text style={[styles.actionText, post.liked && { color: "#E74C3C" }]}>
-            {post.likes}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionBtn} activeOpacity={0.7}>
-          <Ionicons name="chatbubble-outline" size={20} color="#888" />
-          <Text style={styles.actionText}>{post.comments}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionBtn} activeOpacity={0.7}>
-          <Ionicons name="share-social-outline" size={20} color="#888" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
-
-// ─── Tela Principal ───────────────────────────────────────────────────────────
+// ─── Tela Principal ───────────────────────────────────────────────────
 
 export default function FeedScreen() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Simulação carregamento
   const loadPosts = () => {
     setTimeout(() => {
       setPosts(MOCK_POSTS);
+
       setLoading(false);
       setRefreshing(false);
     }, 1200);
@@ -218,62 +121,78 @@ export default function FeedScreen() {
     loadPosts();
   }, []);
 
+  // Atualizar feed
   const handleRefresh = () => {
     setRefreshing(true);
+
     loadPosts();
   };
 
+  // Curtir publicação
   const handleLike = (id: string) => {
     setPosts((prev) =>
-      prev.map((p) =>
-        p.id === id
+      prev.map((post) =>
+        post.id === id
           ? {
-            ...p,
-            liked: !p.liked,
-            likes: p.liked ? p.likes - 1 : p.likes + 1,
+            ...post,
+            isLiked: !post.isLiked,
+            likes: post.isLiked
+              ? post.likes - 1
+              : post.likes + 1,
           }
-          : p,
-      ),
+          : post
+      )
     );
   };
 
-  const renderPost = ({ item }: { item: Post }) => (
-    <PostCard post={item} onLike={handleLike} />
-  );
-
-  const renderSkeletons = () => (
-    <>
-      <SkeletonCard />
-      <SkeletonCard />
-      <SkeletonCard />
-    </>
-  );
+  // Comentar publicação
+  const handleComment = (id: string, comment: string) => {
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === id
+          ? {
+            ...post,
+            comments: [
+              ...post.comments,
+              {
+                id: Date.now().toString(),
+                author: "Usuário",
+                authorAvatar: "#1B4F8A",
+                content: comment,
+                timestamp: "Agora",
+              },
+            ],
+          }
+          : post
+      )
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#EBF3FA" />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="#EBF3FA"
+      />
 
       {loading ? (
-        <FlatList
-          data={[]}
-          renderItem={null}
-          ListHeaderComponent={renderSkeletons}
-          contentContainerStyle={styles.listContent}
-        />
+        <View style={styles.loadingContainer}>
+          <Ionicons
+            name="school"
+            size={42}
+            color="#1B4F8A"
+          />
+
+          <Text style={styles.loadingText}>
+            Carregando feed...
+          </Text>
+        </View>
       ) : (
         <FlatList
-          ListHeaderComponent={
-            <Stories
-              currentUser={{
-                name: 'Pedro Lira'
-              }}
-            />
-          }
           data={posts}
           keyExtractor={(item) => item.id}
-          renderItem={renderPost}
-          contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -282,10 +201,45 @@ export default function FeedScreen() {
               tintColor="#1B4F8A"
             />
           }
+
+          // STORIES NO TOPO
+          ListHeaderComponent={
+            <Stories
+              currentUser={{
+                name: "Usuário",
+              }}
+            />
+          }
+
+          // RENDER DOS POSTS
+          renderItem={({ item }) => (
+            <Post
+              id={item.id}
+              author={item.author}
+              course={item.authorCourse}
+              avatarColor={item.authorAvatar}
+              content={item.content}
+              timestamp={item.timestamp}
+              likes={item.likes}
+              comments={item.comments}
+              liked={item.isLiked}
+              onLike={handleLike}
+            />
+          )}
+
+          // Caso não existam posts
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons name="newspaper-outline" size={48} color="#B0C4D8" />
-              <Text style={styles.emptyText}>Nenhuma publicação ainda</Text>
+              <Ionicons
+                name="newspaper-outline"
+                size={48}
+                color="#B0C4D8"
+              />
+
+              <Text style={styles.emptyText}>
+                Nenhuma publicação ainda
+              </Text>
+
               <Text style={styles.emptySubText}>
                 Seja o primeiro a compartilhar algo!
               </Text>
@@ -297,104 +251,45 @@ export default function FeedScreen() {
   );
 }
 
-// ─── Estilos ──────────────────────────────────────────────────────────────────
+// ─── Estilos ──────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#EBF3FA",
   },
+
   listContent: {
-    padding: 12,
-    gap: 10,
+    paddingBottom: 30,
   },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 10,
-    marginBottom: 10,
-  },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: "center",
+
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
-  },
-  avatarText: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-    fontSize: 14,
-  },
-  authorName: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#1B3A5C",
-  },
-  authorMeta: {
-    fontSize: 12,
-    color: "#6B8BA4",
-    marginTop: 1,
-  },
-  postContent: {
-    fontSize: 14,
-    color: "#2C3E50",
-    lineHeight: 20,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#EBF3FA",
-    marginVertical: 12,
-  },
-  actions: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 20,
+    gap: 14,
   },
-  actionBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
+
+  loadingText: {
+    fontSize: 16,
+    color: "#1B4F8A",
+    fontWeight: "600",
   },
-  actionText: {
-    fontSize: 13,
-    color: "#888",
-    fontWeight: "500",
-  },
-  // Skeleton
-  skeleton: {
-    backgroundColor: "#E8EFF5",
-    opacity: 0.8,
-  },
-  avatarSkeleton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-  },
-  // Empty state
+
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 80,
     gap: 8,
   },
+
   emptyText: {
     fontSize: 16,
     fontWeight: "600",
     color: "#6B8BA4",
     marginTop: 8,
   },
+
   emptySubText: {
     fontSize: 13,
     color: "#9BB5C8",
