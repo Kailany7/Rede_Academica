@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+
 import { Avatar } from './Avatar';
-import { Colors, Typography } from '../constants/Colors';
+import Colors, { Typography } from '../constants/Colors';
 
 interface NotificationProps {
   initials: string;
@@ -10,14 +11,31 @@ interface NotificationProps {
   isNew?: boolean;
 }
 
-export function NotificationItem({ initials, message, time, isNew }: NotificationProps) {
+export function NotificationItem({
+  initials,
+  message,
+  time,
+  isNew,
+}: NotificationProps) {
   return (
-    <View style={[styles.container, isNew && styles.unread]}>
+    <View
+      style={[
+        styles.container,
+        isNew && styles.unread,
+      ]}
+    >
       <Avatar initials={initials} size={44} />
+
       <View style={styles.textContainer}>
-        <Text style={styles.message}>{message}</Text>
-        <Text style={styles.time}>{time}</Text>
+        <Text style={styles.message}>
+          {message}
+        </Text>
+
+        <Text style={styles.time}>
+          {time}
+        </Text>
       </View>
+
       {isNew && <View style={styles.badge} />}
     </View>
   );
@@ -28,27 +46,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+
+    backgroundColor: Colors.card,
+
     borderBottomWidth: 1,
-    borderBottomColor: Colors.subtleBlock,
+    borderBottomColor: Colors.muted,
   },
+
   unread: {
-    backgroundColor: Colors.subtleBlock, 
+    backgroundColor: Colors.muted,
   },
+
   textContainer: {
     flex: 1,
     marginLeft: 12,
   },
+
   message: {
-    fontSize: Typography.size.regular,
-    color: Colors.text,
+    fontSize: Typography.size.medium,
+    color: Colors.foreground,
     lineHeight: 18,
   },
+
   time: {
     fontSize: Typography.size.small,
-    color: Colors.textMuted,
+    color: Colors.mutedForeground,
     marginTop: 4,
   },
+
   badge: {
     width: 8,
     height: 8,

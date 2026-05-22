@@ -3,7 +3,6 @@ import { ScrollView, View } from "react-native";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { Avatar } from "../components/Avatar";
-import { PostCard } from "../components/cardPost";
 import { ExperienceCard } from "../components/cardExperiencia";
 import { NotificationItem } from "../components/notificacao";
 
@@ -21,20 +20,6 @@ export default function TestComponents() {
 
       {/* AVATAR */}
       <Avatar initials="LR" size={70} />
-
-      {/* POST CARD */}
-      <PostCard
-        initials="LR"
-        authorName="Lara"
-        course="Sistemas de Informação"
-        timeAgo="há 5 min"
-        text="Esse é um post de teste."
-        likesCount={12}
-        commentsCount={4}
-        onLike={() => console.log("like")}
-        onComment={() => console.log("comentário")}
-        onShare={() => console.log("share")}
-      />
 
       {/* EXPERIENCE CARD */}
       <ExperienceCard

@@ -1,30 +1,27 @@
 import React from 'react';
-import { TextInput, StyleSheet, View, Text } from 'react-native';
-import { Colors, Typography } from '../constants/Colors';
+import {
+  TextInput,
+  StyleSheet,
+  View,
+  Text,
+  TextInputProps,
+} from 'react-native';
 
-interface InputProps {
-  placeholder: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  secureTextEntry?: boolean;
+import Colors, { Typography } from '../constants/Colors';
+
+interface InputProps extends TextInputProps {
   label?: string;
-  multiline?: boolean;
-  numberOfLines?: number;
 }
 
-export function Input({ placeholder, value, onChangeText, secureTextEntry, label, multiline, numberOfLines }: InputProps) {
+export function Input({ label, ...props }: InputProps) {
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
+
       <TextInput
-        style={[styles.input, multiline && { height: 100, textAlignVertical: 'top' }]}
-        placeholder={placeholder}
-        placeholderTextColor={Colors.textMuted}
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        multiline={multiline}
-        numberOfLines={numberOfLines}
+        placeholderTextColor={Colors.mutedForeground}
+        style={styles.input}
+        {...props}
       />
     </View>
   );
@@ -35,20 +32,23 @@ const styles = StyleSheet.create({
     width: '100%',
     marginVertical: 8,
   },
+
   label: {
-    fontSize: Typography.size.small,
-    color: Colors.text,
-    fontWeight: Typography.weight.bold,
     marginBottom: 6,
+    color: Colors.foreground,
+    fontSize: Typography.size.medium,
+    fontWeight: Typography.weight.medium as '500',
   },
+
   input: {
-    backgroundColor: Colors.surface,
+    width: '100%',
+    backgroundColor: Colors.inputBackground,
     borderWidth: 1,
-    borderColor: Colors.subtleBlock,
+    borderColor: Colors.border,
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: Typography.size.regular,
-    color: Colors.text,
+    paddingVertical: 14,
+    color: Colors.foreground,
+    fontSize: Typography.size.medium,
   },
 });

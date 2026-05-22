@@ -1,6 +1,12 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { Colors, Typography } from '../constants/Colors';
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
+
+import Colors, { Typography } from '../constants/Colors';
 
 interface ButtonProps {
   title: string;
@@ -9,27 +15,40 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'danger';
 }
 
-export function Button({ title, onPress, loading, variant = 'primary' }: ButtonProps) {
+export function Button({
+  title,
+  onPress,
+  loading,
+  variant = 'primary',
+}: ButtonProps) {
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[
-        styles.button, 
+        styles.button,
         variant === 'primary' && styles.btnPrimary,
         variant === 'secondary' && styles.btnSecondary,
         variant === 'danger' && styles.btnDanger,
-      ]} 
-      onPress={onPress} 
+      ]}
+      onPress={onPress}
       disabled={loading}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'secondary' ? Colors.primary : Colors.surface} />
+        <ActivityIndicator
+          color={
+            variant === 'secondary'
+              ? Colors.primary
+              : Colors.card
+          }
+        />
       ) : (
-        <Text style={[
-          styles.text, 
-          variant === 'primary' && styles.textPrimary,
-          variant === 'secondary' && styles.textSecondary,
-          variant === 'danger' && styles.textDanger,
-        ]}>
+        <Text
+          style={[
+            styles.text,
+            variant === 'primary' && styles.textPrimary,
+            variant === 'secondary' && styles.textSecondary,
+            variant === 'danger' && styles.textDanger,
+          ]}
+        >
           {title}
         </Text>
       )}
@@ -46,26 +65,33 @@ const styles = StyleSheet.create({
     width: '100%',
     marginVertical: 8,
   },
+
   btnPrimary: {
     backgroundColor: Colors.primary,
   },
+
   btnSecondary: {
-    backgroundColor: Colors.subtleBlock,
+    backgroundColor: Colors.muted,
   },
+
   btnDanger: {
-    backgroundColor: Colors.error,
+    backgroundColor: Colors.destructive,
   },
+
   text: {
     fontSize: Typography.size.medium,
-    fontWeight: Typography.weight.bold,
+    fontWeight: Typography.weight.bold as '700',
   },
+
   textPrimary: {
-    color: Colors.surface,
+    color: Colors.card,
   },
+
   textSecondary: {
-    color: Colors.text,
+    color: Colors.foreground,
   },
+
   textDanger: {
-    color: Colors.surface,
+    color: Colors.card,
   },
 });
