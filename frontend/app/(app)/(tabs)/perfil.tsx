@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import PostCard from '../../../components/PostCard'
+import { ExperienceCard } from '../../../components/cardExperiencia'
 import { posts as MOCK_POSTS } from '../../../data/posts'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -181,40 +182,47 @@ export default function PerfilScreen() {
               label="Semestre"
               value={user.semester}
             />
-            <InfoRow
-              icon="briefcase-outline"
-              label="Experiência"
-              value={user.experience}
+            <ExperienceCard
+              title="Desenvolvedor Front-End"
+              company="Banco do Brasil · Estágio"
+              period="jan de 2025 · o momento"
+              description="Desenvolvimento de interfaces mobile com React Native, Expo Router e TypeScript. Criação de telas responsivas, integração de componentes reutilizáveis e versionamento com Git/GitHub."
+            />
+
+            <ExperienceCard
+              title="Monitor de Programação"
+              company="UNIFACISA · Meio período"
+              period="ago de 2024 · dez de 2024 · 5 meses"
+              description="Auxílio a alunos nas disciplinas de lógica de programação e estrutura de dados. Suporte em JavaScript, algoritmos e resolução de exercícios práticos."
+            />
+
+            <ExperienceCard
+              title="Desenvolvedor Back-End"
+              company="UNIFACISA · Estágio"
+              period="fev de 2024 · out de 2024 · 9 meses"
+              description="Participação no desenvolvimento de APIs REST utilizando Node.js, Express e MongoDB. Implementação de autenticação, integração com banco de dados e testes de rotas."
             />
           </View>
           {/* POSTS */}
 
           <View style={styles.postsContainer}>
+            <Text style={styles.postsTitle}>Publicações</Text>
 
-            <Text style={styles.postsTitle}>
-              Publicações
-            </Text>
-
-            {
-              posts.map((post) => (
-
-                <PostCard
-                  key={post.id}
-                  id={post.id}
-                  author={post.author}
-                  course={post.course}
-                  content={post.content}
-                  timestamp={post.timestamp}
-                  likes={post.likes}
-                  comments={post.comments}
-                  liked={post.liked}
-                  avatarColor={post.avatarColor}
-                  onLike={handleLike}
-                />
-
-              ))
-            }
-
+            {posts.map((post) => (
+              <PostCard
+                key={post.id}
+                id={post.id}
+                author={post.author}
+                course={post.course}
+                content={post.content}
+                timestamp={post.timestamp}
+                likes={post.likes}
+                comments={post.comments}
+                liked={post.liked}
+                avatarColor={post.avatarColor}
+                onLike={handleLike}
+              />
+            ))}
           </View>
         </View>
       </ScrollView>
