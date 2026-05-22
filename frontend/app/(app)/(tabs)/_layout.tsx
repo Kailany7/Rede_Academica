@@ -89,6 +89,15 @@ export default function TabsLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="grupos"
+        options={{
+          title: 'Grupos',
+          tabBarButton: () => null,
+          
+        }}
+      />
+
     </Tabs>
   )
 }
