@@ -22,10 +22,9 @@ import {
 } from 'lucide-react-native';
 
 // Cores do projeto
-import Colors from '../../../constants/Colors'
+import Colors from '../../constants/Colors'
 
 export default function OnboardingScreen() {
-
   const router = useRouter();
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -55,7 +54,7 @@ export default function OnboardingScreen() {
   ];
 
   const handleFinish = () => {
-    router.replace('/(app)/(tabs)/perfil');
+    router.replace('/(app)/(tabs)/feed');
   };
 
   const handleNext = () => {

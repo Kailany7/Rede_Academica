@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import Stories from '../../../components/Stories'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -227,10 +228,10 @@ export default function FeedScreen() {
       prev.map((p) =>
         p.id === id
           ? {
-              ...p,
-              liked: !p.liked,
-              likes: p.liked ? p.likes - 1 : p.likes + 1,
-            }
+            ...p,
+            liked: !p.liked,
+            likes: p.liked ? p.likes - 1 : p.likes + 1,
+          }
           : p,
       ),
     );
@@ -261,6 +262,13 @@ export default function FeedScreen() {
         />
       ) : (
         <FlatList
+          ListHeaderComponent={
+            <Stories
+              currentUser={{
+                name: 'Pedro Lira'
+              }}
+            />
+          }
           data={posts}
           keyExtractor={(item) => item.id}
           renderItem={renderPost}

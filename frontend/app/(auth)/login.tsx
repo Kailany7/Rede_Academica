@@ -79,8 +79,8 @@ export default function LoginScreen() {
           <TouchableOpacity
             style={styles.button}
 
-            // Navega para a área principal do app
-            onPress={() => router.push('/(app)/(tabs)/onboarding')}
+            // Navega para onboarding por enquanto, depois vai para a tela principal
+            onPress={() => router.push('/(auth)/onboarding')}
           >
             <Text style={styles.buttonText}>Entrar</Text>
           </TouchableOpacity>
