@@ -8,6 +8,7 @@ import {
 
 import Colors from '../../../constants/Colors'
 import FloatingChat from '../../../components/FloatingChat'
+import Header from '../../../components/Header'
 
 
 // Botão central customizado
@@ -47,6 +48,7 @@ export default function TabsLayout() {
 
   return (
     <View style={{ flex: 1 }}>
+      <Header />
       <Tabs
 
         screenOptions={{
