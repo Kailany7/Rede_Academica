@@ -28,8 +28,10 @@ export default function FloatingChat() {
 
 const styles = StyleSheet.create({
   floatingButton: {
+
     position: "absolute",
-    bottom: 30,
+
+    bottom: 90,
     right: 20,
 
     width: 60,
@@ -42,6 +44,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
 
-    elevation: 5
+    elevation: 10,
+
+    zIndex: 999,
+
+    shadowColor: "#000",
+
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+
+    shadowOpacity: 0.25,
+
+    shadowRadius: 6,
   }
 });

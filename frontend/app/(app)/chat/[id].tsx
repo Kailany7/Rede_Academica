@@ -11,7 +11,10 @@ import {
   Platform
 } from "react-native";
 
-import ChatBubble from "../../../../components/ChatBuble";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import ChatBubble from "../../../components/ChatBubble";
+
 
 const initialMessages = [
   {
@@ -46,7 +49,7 @@ export default function ConversationScreen() {
 
     setInput("");
   };
-
+  const router = useRouter();
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -56,6 +59,26 @@ export default function ConversationScreen() {
           : undefined
       }
     >
+      <View style={styles.header}>
+
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color="#1B3A5C"
+          />
+
+        </TouchableOpacity>
+
+        <Text style={styles.headerTitle}>
+          Conversa
+        </Text>
+
+      </View>
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}
@@ -100,7 +123,35 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F3F7FB",
   },
+  header: {
 
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    paddingHorizontal: 16,
+
+    paddingVertical: 14,
+
+    backgroundColor: "#FFFFFF",
+
+    borderBottomWidth: 1,
+
+    borderBottomColor: "#E2E8F0",
+  },
+
+  backButton: {
+    marginRight: 12,
+  },
+
+  headerTitle: {
+
+    fontSize: 18,
+
+    fontWeight: "700",
+
+    color: "#1B3A5C",
+  },
   inputArea: {
     flexDirection: "row",
     alignItems: "center",

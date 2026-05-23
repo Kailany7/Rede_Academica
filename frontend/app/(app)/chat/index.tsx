@@ -8,6 +8,8 @@ import {
 
 import { useRouter } from "expo-router";
 
+import { Ionicons } from "@expo/vector-icons";
+
 const conversations = [
   {
     id: "1",
@@ -26,11 +28,30 @@ export default function ChatScreen() {
   const router = useRouter();
 
   return (
+
     <View style={styles.container}>
 
-      <Text style={styles.title}>
-        Mensagens
-      </Text>
+      {/* HEADER */}
+      <View style={styles.header}>
+
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color="#1B3A5C"
+          />
+
+        </TouchableOpacity>
+
+        <Text style={styles.title}>
+          Mensagens
+        </Text>
+
+      </View>
 
       <FlatList
         data={conversations}
@@ -70,17 +91,30 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: "#EBF3FA",
     padding: 16
   },
 
+  header: {
+
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    marginBottom: 20,
+  },
+
+  backButton: {
+    marginRight: 12,
+  },
+
   title: {
     fontSize: 24,
     fontWeight: "700",
     color: "#1B3A5C",
-    marginBottom: 20
   },
 
   card: {
