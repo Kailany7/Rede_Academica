@@ -10,10 +10,10 @@ import {
   Platform,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import Colors from '../../../constants/Colors'
-import styles from '../styles/gruposStyles'
+import Colors from '../../constants/Colors'
+import styles from './styles/gruposStyles'
 
-
+import { useRouter } from 'expo-router'
 
 
 interface Grupo {
@@ -69,7 +69,7 @@ const GRUPOS_MOCK: Grupo[] = [
 
 
 export default function GruposScreen() {
-
+const router = useRouter()
   const [busca, setBusca] = useState<string>('')
   const [modalAberto, setModalAberto] = useState<boolean>(false)
   const [formGrupo, setFormGrupo] = useState<FormGrupo>({
@@ -99,17 +99,37 @@ export default function GruposScreen() {
   return (
     <View style={styles.container}>
 
-     
+
 
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.innerContent}>
+          {/* HEADER */}
+          <View style={styles.header}>
 
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={Colors.cardForeground}
+              />
+
+            </TouchableOpacity>
+
+            <Text style={styles.headerTitle}>
+              Grupos
+            </Text>
+
+          </View>
           {/* Título e botão de criar grupo */}
           <View style={styles.topRow}>
-            <Text style={styles.titulo}>Grupos</Text>
+
             <TouchableOpacity
               style={styles.addButton}
               onPress={() => setModalAberto(true)}
@@ -199,7 +219,7 @@ export default function GruposScreen() {
             onPress={() => setModalAberto(false)}
           />
 
-     
+
           <View style={styles.modalCard}>
             <Text style={styles.modalTitulo}>Novo Grupo</Text>
 

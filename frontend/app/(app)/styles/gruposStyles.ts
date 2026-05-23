@@ -245,6 +245,28 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
   },
+
+  header: {
+
+  flexDirection: 'row',
+
+  alignItems: 'center',
+
+  marginBottom: 20,
+},
+
+backButton: {
+  marginRight: 8,
+},
+
+headerTitle: {
+
+  fontSize: 28,
+
+  fontWeight: '700',
+
+  color: Colors.cardForeground,
+},
 })
 
 export default styles
