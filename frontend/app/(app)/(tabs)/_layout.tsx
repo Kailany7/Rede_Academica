@@ -7,7 +7,7 @@ import {
 } from 'react-native'
 
 import Colors from '../../../constants/Colors'
-
+import FloatingChat from '../../../components/FloatingChat'
 
 
 // Botão central customizado
@@ -46,165 +46,170 @@ function CustomAddButton({
 export default function TabsLayout() {
 
   return (
+    <View style={{ flex: 1 }}>
+      <Tabs
 
-    <Tabs
+        screenOptions={{
 
-      screenOptions={{
+          headerShown: false,
 
-        headerShown: false,
+          tabBarActiveTintColor: Colors.primary,
 
-        tabBarActiveTintColor: Colors.primary,
+          tabBarInactiveTintColor:
+            Colors.mutedForeground,
 
-        tabBarInactiveTintColor:
-          Colors.mutedForeground,
+          tabBarStyle: {
 
-        tabBarStyle: {
+            backgroundColor: Colors.card,
 
-          backgroundColor: Colors.card,
+            borderTopColor: Colors.border,
 
-          borderTopColor: Colors.border,
+            height: 60,
 
-          height: 60,
+            paddingBottom: 8,
+          },
 
-          paddingBottom: 8,
-        },
-
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '500',
-        },
-      }}
-    >
-
-      {/* FEED */}
-      <Tabs.Screen
-        name="feed"
-
-        options={{
-
-          title: 'Início',
-
-          tabBarIcon: ({
-            color,
-            size
-          }) => (
-
-            <Ionicons
-              name="home-outline"
-              size={size}
-              color={color}
-            />
-          ),
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: '500',
+          },
         }}
-      />
+      >
+
+
+        {/* FEED */}
+        <Tabs.Screen
+          name="feed"
+
+          options={{
+
+            title: 'Início',
+
+            tabBarIcon: ({
+              color,
+              size
+            }) => (
+
+              <Ionicons
+                name="home-outline"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
 
 
 
-      {/* BUSCA */}
-      <Tabs.Screen
-        name="busca"
+        {/* BUSCA */}
+        <Tabs.Screen
+          name="busca"
 
-        options={{
+          options={{
 
-          title: 'Buscar',
+            title: 'Buscar',
 
-          tabBarIcon: ({
-            color,
-            size
-          }) => (
+            tabBarIcon: ({
+              color,
+              size
+            }) => (
 
-            <Ionicons
-              name="search-outline"
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
+              <Ionicons
+                name="search-outline"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
 
-      {/* CRIAR PUBLICAÇÃO */}
-      <Tabs.Screen
-        name="criar-publicacao"
+        {/* CRIAR PUBLICAÇÃO */}
+        <Tabs.Screen
+          name="criar-publicacao"
 
-        options={{
+          options={{
 
-          title: '',
+            title: '',
 
-          tabBarLabel: '',
+            tabBarLabel: '',
 
-          tabBarButton: (props) => (
+            tabBarButton: (props) => (
 
-            <CustomAddButton
-              onPress={
-                props.onPress as () => void
-              }
-            />
-          ),
-        }}
-      />
+              <CustomAddButton
+                onPress={
+                  props.onPress as () => void
+                }
+              />
+            ),
+          }}
+        />
 
-      {/* REDE DE CONEXÕES */}
-      <Tabs.Screen
-        name="rede-conexoes"
+        {/* REDE DE CONEXÕES */}
+        <Tabs.Screen
+          name="rede-conexoes"
 
-        options={{
+          options={{
 
-          title: 'Conexões',
+            title: 'Conexões',
 
-          tabBarIcon: ({
-            color,
-            size
-          }) => (
+            tabBarIcon: ({
+              color,
+              size
+            }) => (
 
-            <Ionicons
-              name="people-outline"
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
+              <Ionicons
+                name="people-outline"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
 
-      {/* VAGAS */}
+        {/* VAGAS */}
 
-      <Tabs.Screen
-        name="vagas"
-        options={{
-          title: 'Vagas',
+        <Tabs.Screen
+          name="vagas"
+          options={{
+            title: 'Vagas',
 
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons
-              name="briefcase-outline"
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons
+                name="briefcase-outline"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
 
-      {/* PERFIL */}
-      <Tabs.Screen
-        name="perfil"
+        {/* PERFIL */}
+        <Tabs.Screen
+          name="perfil"
 
-        options={{
+          options={{
 
-          title: 'Perfil',
+            title: 'Perfil',
 
-          tabBarIcon: ({
-            color,
-            size
-          }) => (
+            tabBarIcon: ({
+              color,
+              size
+            }) => (
 
-            <Ionicons
-              name="person-outline"
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      />
+              <Ionicons
+                name="person-outline"
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
 
-    </Tabs>
+      </Tabs>
+      {/* BOTÃO FLUTUANTE */}
+      <FloatingChat />
+
+    </View>
   )
 }
 
