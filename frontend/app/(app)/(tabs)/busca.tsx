@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { widthPercentageToDP as wp } from "react-native-responsive-screen";
 import { Ionicons } from "@expo/vector-icons";
-import Header from "../../../components/Header";
+
 import Colors from "../../../constants/Colors";
 import styles from "../styles/buscaStyles";
 
@@ -181,7 +181,6 @@ export default function BuscaScreen() {
 
   return (
     <View style={styles.container}>
-      <Header />
 
       <ScrollView style={styles.content}>
         <View style={styles.innerContent}>

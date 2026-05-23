@@ -253,6 +253,7 @@ const styles = StyleSheet.create({
 
   buttonsContainer: {
     gap: 18,
+    marginTop: 40,
   },
 
   button: {

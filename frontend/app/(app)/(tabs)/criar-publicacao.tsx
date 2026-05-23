@@ -21,6 +21,9 @@ import { router } from 'expo-router'
 // Importa estilos
 import styles from '../styles/criarPublicacaoStyles'
 
+
+import { usePosts } from '../../../contexts/postContext'
+
 // Interface das propriedades do componente
 interface CriarPublicacaoProps {
 
@@ -45,7 +48,7 @@ export default function CriarPublicacao({
 
   // Estado que armazena conteúdo digitado
   const [content, setContent] = useState('')
-
+  const { addPost } = usePosts()
   // Função responsável por publicar
   const handleSubmit = () => {
 
@@ -53,10 +56,7 @@ export default function CriarPublicacao({
     if (content.trim()) {
 
       // Executa função somente se existir
-      if (onCreatePost) {
-        onCreatePost(content)
-      }
-
+      addPost(content)
       // Limpa campo
       setContent('')
 

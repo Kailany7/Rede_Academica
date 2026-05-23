@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { View, ActivityIndicator } from "react-native";
-
+import { PostsProvider } from '../contexts/postContext'
 // ─── Simulação de estado de autenticação ──────────────────────────────────────
 // Quando o back-end estiver pronto, substitua este hook pela lógica real
 // (ex: checar token no AsyncStorage ou contexto global).
@@ -63,12 +63,16 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 // ─── Layout raiz ──────────────────────────────────────────────────────────────
 
 export default function RootLayout() {
-  return (
+return (
+  <PostsProvider>
+
     <AuthGuard>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(app)" />
       </Stack>
     </AuthGuard>
-  );
+
+  </PostsProvider>
+);
 }
