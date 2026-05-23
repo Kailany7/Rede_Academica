@@ -23,6 +23,7 @@ interface SearchResult {
   course?: string;
   semester?: string;
 }
+//
 const allResults: SearchResult[] = [
   {
     id: "1",
