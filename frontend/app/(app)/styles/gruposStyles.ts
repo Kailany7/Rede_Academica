@@ -248,25 +248,27 @@ const styles = StyleSheet.create({
 
   header: {
 
-  flexDirection: 'row',
+    flexDirection: 'row',
 
-  alignItems: 'center',
+    alignItems: 'center',
 
-  marginBottom: 20,
-},
+    marginBottom: 20,
+    marginTop: 40,
+  },
 
-backButton: {
-  marginRight: 8,
-},
+  backButton: {
+    marginRight: 8,
+    marginTop: 12,
+  },
 
-headerTitle: {
+  headerTitle: {
 
-  fontSize: 28,
+    fontSize: 28,
 
-  fontWeight: '700',
+    fontWeight: '700',
 
-  color: Colors.cardForeground,
-},
+    color: Colors.cardForeground,
+  },
 })
 
 export default styles
