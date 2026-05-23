@@ -71,10 +71,14 @@ export default function Header({ temNotificacao = false }: HeaderProps) {
           <View style={[styles.menuCard, { top: insets.top + 60 }]}>
           {/* top dinâmico para o menu abrir no lugar certo */}
 
-            {/* Grupos — fase 2 */}
+            {/* Grupos */}
             <TouchableOpacity
               style={styles.menuItem}
-              onPress={() => setMenuAberto(false)}
+              onPress={() => {
+                setMenuAberto(false)
+                router.push('/(app)/grupos')
+                // navega para a tela de grupos
+              }}
             >
               <Ionicons name="people-outline" size={20} color={Colors.foreground} />
               <Text style={styles.menuItemText}>Grupos</Text>

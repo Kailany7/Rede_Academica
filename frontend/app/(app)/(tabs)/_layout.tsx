@@ -207,11 +207,24 @@ export default function TabsLayout() {
           }}
         />
 
+<<<<<<< HEAD
+      <Tabs.Screen
+        name="grupos"
+        options={{
+          title: 'Grupos',
+          tabBarButton: () => null,
+          
+        }}
+      />
+
+    </Tabs>
+=======
       </Tabs>
       {/* BOTÃO FLUTUANTE */}
       <FloatingChat />
 
     </View>
+>>>>>>> 98712d6c9d6d46192bbfb3e146005cc860a6ba5b
   )
 }
 
