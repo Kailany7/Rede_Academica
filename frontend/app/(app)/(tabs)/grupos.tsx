@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import Colors from '../../../constants/Colors'
 import styles from '../styles/gruposStyles'
-import Header from '../../../components/Header'
+
 
 
 
@@ -99,8 +99,7 @@ export default function GruposScreen() {
   return (
     <View style={styles.container}>
 
-      {/* Header reutilizável */}
-      <Header />
+     
 
       <ScrollView
         style={styles.content}
