@@ -21,7 +21,15 @@ export async function listarGrupos(): Promise<Grupo[]> {
 }
 
 export async function criarGrupo(data: CriarGrupoData): Promise<Grupo> {
-  const response = await api.post<Grupo>("/grupos", data);
+  try {
+    const response = await api.post<Grupo>("/grupos", data);
 
-  return response.data;
+    return response.data;
+  } catch (error: any) {
+    // Pega a mensagem enviada pelo backend
+    const mensagem =
+      error.response?.data?.message || "Erro ao criar grupo.";
+
+    throw new Error(mensagem);
+  }
 }
