@@ -1,21 +1,34 @@
 import { Request, Response } from "express";
 import Grupo from "../models/Grupo";
 
-// POST /grupos
 export const criarGrupo = async (req: Request, res: Response): Promise<void> => {
   try {
     const { nome, descricao } = req.body;
 
-    if (!nome || !descricao) {
+    // Valida se os campos foram preenchidos
+    if (!nome?.trim() || !descricao?.trim()) {
       res.status(400).json({
         message: "Nome e descrição são obrigatórios.",
       });
       return;
     }
 
+    // Verifica se já existe grupo com o mesmo nome
+    const grupoExistente = await Grupo.findOne({
+      nome: { $regex: `^${nome.trim()}$`, $options: "i" },
+    });
+
+    if (grupoExistente) {
+      res.status(409).json({
+        message: "Já existe um grupo com esse nome.",
+      });
+      return;
+    }
+
+    // Cria o grupo no banco
     const novoGrupo = await Grupo.create({
-      nome,
-      descricao,
+      nome: nome.trim(),
+      descricao: descricao.trim(),
       membros: [],
     });
 
@@ -28,7 +41,6 @@ export const criarGrupo = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-// GET /grupos
 export const listarGrupos = async (req: Request, res: Response): Promise<void> => {
   try {
     const grupos = await Grupo.find().sort({ data: -1 });
