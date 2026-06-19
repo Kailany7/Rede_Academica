@@ -134,7 +134,10 @@ export default function BuscaScreen() {
 
   const handleResultPress = (result: SearchResult): void => {
     if (result.type === "group") {
-      router.push("/grupos");
+      router.push({
+        pathname: "/grupos",
+        params: { id: result.id },
+      })
     }
   };
 

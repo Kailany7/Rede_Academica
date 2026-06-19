@@ -8,9 +8,10 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 
 import Colors from '../../constants/Colors'
 import styles from './styles/gruposStyles'
@@ -23,46 +24,60 @@ interface FormGrupo {
 
 export default function GruposScreen() {
   const router = useRouter()
+  const { grupoId } = useLocalSearchParams()
+
+  const grupoIdParam = Array.isArray(grupoId) ? grupoId[0] : grupoId
 
   const [grupos, setGrupos] = useState<Grupo[]>([])
   const [busca, setBusca] = useState<string>('')
   const [modalAberto, setModalAberto] = useState<boolean>(false)
+  const [grupoSelecionado, setGrupoSelecionado] = useState<Grupo | null>(null)
+  const [modalDetalhesAberto, setModalDetalhesAberto] = useState<boolean>(false)
 
   const [formGrupo, setFormGrupo] = useState<FormGrupo>({
     nome: '',
     descricao: '',
   })
 
-  // Carrega os grupos cadastrados no banco quando a tela abre
   const carregarGrupos = async (): Promise<void> => {
     try {
       const dados = await listarGrupos()
       setGrupos(dados)
     } catch (error) {
-      console.log('Erro ao carregar grupos:', error)
+      Alert.alert('Erro', 'Não foi possível carregar os grupos.')
     }
   }
 
-  // Executa a função carregarGrupos quando a tela é aberta
   useEffect(() => {
     carregarGrupos()
   }, [])
 
-  // Filtra os grupos conforme o texto digitado na busca
+  useEffect(() => {
+    if (grupoIdParam && grupos.length > 0) {
+      const grupoEncontrado = grupos.find(
+        (grupo) => grupo._id === grupoIdParam
+      )
+
+      if (grupoEncontrado) {
+        setGrupoSelecionado(grupoEncontrado)
+        setModalDetalhesAberto(true)
+      }
+    }
+  }, [grupoIdParam, grupos])
+
   const gruposFiltrados: Grupo[] = grupos.filter((grupo: Grupo) =>
     grupo.nome.toLowerCase().includes(busca.toLowerCase()) ||
     grupo.descricao.toLowerCase().includes(busca.toLowerCase())
   )
 
-  // Atualiza os campos do formulário
   const handleChange = (campo: keyof FormGrupo, valor: string): void => {
-    setFormGrupo(prev => ({ ...prev, [campo]: valor }))
+    setFormGrupo((prev) => ({ ...prev, [campo]: valor }))
   }
 
-  // Cria um novo grupo no backend
   const handleCriarGrupo = async (): Promise<void> => {
     try {
       if (!formGrupo.nome.trim() || !formGrupo.descricao.trim()) {
+        Alert.alert('Atenção', 'Preencha nome e descrição do grupo.')
         return
       }
 
@@ -74,11 +89,22 @@ export default function GruposScreen() {
       setFormGrupo({ nome: '', descricao: '' })
       setModalAberto(false)
 
-      // Atualiza a lista depois de criar
       await carregarGrupos()
-    } catch (error) {
-      console.log('Erro ao criar grupo:', error)
+    } catch (error: any) {
+      Alert.alert('Erro', error.message || 'Não foi possível criar o grupo.')
     }
+  }
+
+  const handleEntrarGrupo = (): void => {
+    Alert.alert(
+      'Funcionalidade em breve',
+      'A entrada em grupos será ativada quando o login de usuário estiver pronto.'
+    )
+  }
+
+  const abrirDetalhesGrupo = (grupo: Grupo): void => {
+    setGrupoSelecionado(grupo)
+    setModalDetalhesAberto(true)
   }
 
   return (
@@ -146,7 +172,11 @@ export default function GruposScreen() {
             </View>
           ) : (
             gruposFiltrados.map((grupo: Grupo) => (
-              <View key={grupo._id} style={styles.grupoCard}>
+              <TouchableOpacity
+                key={grupo._id}
+                style={styles.grupoCard}
+                onPress={() => abrirDetalhesGrupo(grupo)}
+              >
                 <View style={[styles.grupoAvatar, { backgroundColor: Colors.primary }]}>
                   <Ionicons
                     name="people"
@@ -172,10 +202,13 @@ export default function GruposScreen() {
                   </View>
                 </View>
 
-                <TouchableOpacity style={styles.entrarButton}>
+                <TouchableOpacity
+                  style={styles.entrarButton}
+                  onPress={handleEntrarGrupo}
+                >
                   <Text style={styles.entrarButtonText}>Entrar</Text>
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             ))
           )}
         </View>
@@ -236,6 +269,80 @@ export default function GruposScreen() {
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      <Modal
+        visible={modalDetalhesAberto}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalDetalhesAberto(false)}
+      >
+        <View style={styles.modalCentralOverlay}>
+          <View style={styles.modalCentralCard}>
+            <View style={styles.grupoHeaderModal}>
+              <View style={styles.grupoAvatarGrande}>
+                <Ionicons
+                  name="people"
+                  size={28}
+                  color={Colors.primaryForeground}
+                />
+              </View>
+
+              <View style={styles.grupoHeaderInfo}>
+                <Text style={styles.modalGrupoTitulo}>
+                  {grupoSelecionado?.nome}
+                </Text>
+
+                <Text style={styles.grupoMetaText}>
+                  {grupoSelecionado?.membros.length ?? 0} membros
+                </Text>
+              </View>
+            </View>
+
+            <Text style={styles.modalGrupoDescricao}>
+              {grupoSelecionado?.descricao}
+            </Text>
+
+            <View style={styles.conversaBox}>
+              <Text style={styles.conversaTitulo}>Prévia da conversa</Text>
+
+              <View style={styles.mensagemItem}>
+                <Text style={styles.mensagemAutor}>Ana</Text>
+                <Text style={styles.mensagemTexto}>
+                  Alguém tem material sobre esse assunto?
+                </Text>
+              </View>
+
+              <View style={styles.mensagemItem}>
+                <Text style={styles.mensagemAutor}>João</Text>
+                <Text style={styles.mensagemTexto}>
+                  Tenho um resumo, posso enviar aqui.
+                </Text>
+              </View>
+
+              <View style={styles.mensagemItem}>
+                <Text style={styles.mensagemAutor}>Maria</Text>
+                <Text style={styles.mensagemTexto}>
+                  Vamos marcar um horário para estudar juntos?
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleEntrarGrupo}
+            >
+              <Text style={styles.buttonText}>Entrar no Grupo</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.buttonCancel}
+              onPress={() => setModalDetalhesAberto(false)}
+            >
+              <Text style={styles.buttonCancelText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </View>
   )
