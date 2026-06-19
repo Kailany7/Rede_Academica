@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import grupoRoutes from "./routes/grupoRoutes";
+import buscaRoutes from "./routes/buscaRoutes";
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.json());
 
 // Rotas
 app.use("/grupos", grupoRoutes);
+app.use("/busca", buscaRoutes);
 
 // Rota inicial
 app.get("/", (req, res) => {
