@@ -19,6 +19,22 @@ export function authMiddleware(
   res: Response,
   next: NextFunction
 ): void {
+  // =========================================================================
+  // AMBIENTE DE TESTES: Autenticação manual temporária
+  // =========================================================================
+  
+  req.user = {
+    id: "6a3c2a5d11df0d8f22add551", // Seu ID gerado no MongoDB
+    email: "teste@academic.com",     // E-mail fictício para o payload
+  };
+
+  // Chama o próximo passo (controller) ignorando a checagem do token real
+  next(); 
+
+  // =========================================================================
+  // CÓDIGO ORIGINAL (Comentei para quando seu colega finalizar o Login)
+  // =========================================================================
+  /*
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -61,4 +77,5 @@ export function authMiddleware(
       message: "Token expirado ou inválido.",
     });
   }
+  */
 }

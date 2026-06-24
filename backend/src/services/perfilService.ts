@@ -1,22 +1,28 @@
-import User from "../models/User";
+import User from "../models/Usuario";
+import Solicitacao from "../models/Solicitacao";
+import Conexao from "../models/Conexao";
 
+// buscar meu perfil
 export const getMyPerfil = async (userId: string) => {
   return await User.findById(userId).select("-senha");
 };
 
+// buscar perfil por ID
 export const getPerfilById = async (id: string) => {
   return await User.findById(id).select("-senha");
 };
 
+// editar perfil 
 export const updatePerfil = async (userId: string, data: any) => {
   const updated = await User.findByIdAndUpdate(
     userId,
     {
       nome: data.nome,
-      bio: data.bio,
+      biografia: data.biografia,
       curso: data.curso,
-      semestre: data.semestre,
-      avatar: data.avatar,
+      instituicao: data.instituicao,
+      fotoPerfil: data.fotoPerfil,
+      habilidades: data.habilidades,
     },
     { new: true }
   ).select("-senha");
@@ -24,103 +30,97 @@ export const updatePerfil = async (userId: string, data: any) => {
   return updated;
 };
 
+// listar conexões
 export const getConnections = async (userId: string) => {
-  const user = await User.findById(userId).populate(
-    "conexoes",
-    "nome curso avatar bio semestre"
-  );
+  const conexoes = await Conexao.find({
+    $or: [{ usuario1: userId }, { usuario2: userId }],
+  })
+    .populate("usuario1", "nome curso fotoPerfil biografia instituicao")
+    .populate("usuario2", "nome curso fotoPerfil biografia instituicao");
 
-  return user?.conexoes;
+  return conexoes.map((conn) => {
+    return String(conn.usuario1._id) === userId ? conn.usuario2 : conn.usuario1;
+  });
 };
 
+// listar solicitações recebidas pendentes
 export const getRequests = async (userId: string) => {
-  const user = await User.findById(userId).populate(
-    "solicitacoesRecebidas",
-    "nome curso avatar"
-  );
+  const solicitacoes = await Solicitacao.find({
+    destinatario: userId,
+    status: "pendente",
+  }).populate("remetente", "nome curso fotoPerfil");
 
-  return user?.solicitacoesRecebidas;
+  return solicitacoes;
 };
 
-export const sendRequest = async (
-  senderId: string,
-  receiverId: string
-) => {
+// enviar solicitação de conexão
+export const sendRequest = async (senderId: string, receiverId: string) => {
   if (senderId === receiverId)
     throw new Error("Você não pode enviar solicitação para si mesmo.");
 
-  const sender = await User.findById(senderId);
   const receiver = await User.findById(receiverId);
+  if (!receiver) throw new Error("Usuário destinatário não encontrado.");
 
-  if (!sender || !receiver)
-    throw new Error("Usuário não encontrado.");
+  // verifica se já existe uma conexão ativa entre eles
+  const jaConectados = await Conexao.findOne({
+    $or: [
+      { usuario1: senderId, usuario2: receiverId },
+      { usuario1: receiverId, usuario2: senderId },
+    ],
+  });
+  if (jaConectados) throw new Error("Vocês já são conexões.");
 
-  if (sender.conexoes.includes(receiver._id))
-    throw new Error("Vocês já são conexões.");
+  // verifica se já existe uma solicitação pendente
+  const solicitacaoExistente = await Solicitacao.findOne({
+    remetente: senderId,
+    destinatario: receiverId,
+    status: "pendente",
+  });
+  if (solicitacaoExistente) throw new Error("Solicitação já enviada e pendente.");
 
-  if (sender.solicitacoesEnviadas.includes(receiver._id))
-    throw new Error("Solicitação já enviada.");
-
-  sender.solicitacoesEnviadas.push(receiver._id);
-  receiver.solicitacoesRecebidas.push(sender._id);
-
-  await sender.save();
-  await receiver.save();
+  // ccria a nova solicitação no banco
+  await Solicitacao.create({
+    remetente: senderId,
+    destinatario: receiverId,
+    status: "pendente",
+  });
 
   return { message: "Solicitação enviada." };
 };
 
-export const acceptRequest = async (
-  userId: string,
-  requesterId: string
-) => {
-  const user = await User.findById(userId);
-  const requester = await User.findById(requesterId);
+// altera o status da solicitação e cria uma conexão
+export const acceptRequest = async (userId: string, requestId: string) => {
+  const solicitacao = await Solicitacao.findById(requestId);
 
-  if (!user || !requester)
-    throw new Error("Usuário não encontrado.");
+  if (!solicitacao) throw new Error("Solicitação não encontrada.");
+  if (String(solicitacao.destinatario) !== userId)
+    throw new Error("Esta solicitação não foi enviada para você.");
+  if (solicitacao.status !== "pendente")
+    throw new Error("Esta solicitação já foi respondida.");
 
-  user.conexoes.push(requester._id);
-  requester.conexoes.push(user._id);
+  // atualiza o status da solicitação
+  solicitacao.status = "aceita";
+  await solicitacao.save();
 
-  user.solicitacoesRecebidas =
-    user.solicitacoesRecebidas.filter(
-      (id: any) => id.toString() !== requesterId
-    );
-
-  requester.solicitacoesEnviadas =
-    requester.solicitacoesEnviadas.filter(
-      (id: any) => id.toString() !== userId
-    );
-
-  await user.save();
-  await requester.save();
+  // cria o vínculo de conexão
+  await Conexao.create({
+    usuario1: solicitacao.remetente,
+    usuario2: solicitacao.destinatario,
+  });
 
   return { message: "Conexão aceita." };
 };
 
-export const rejectRequest = async (
-  userId: string,
-  requesterId: string
-) => {
-  const user = await User.findById(userId);
-  const requester = await User.findById(requesterId);
+// Recusar solicitação
+export const rejectRequest = async (userId: string, requestId: string) => {
+  const solicitacao = await Solicitacao.findById(requestId);
 
-  if (!user || !requester)
-    throw new Error("Usuário não encontrado.");
+  if (!solicitacao) throw new Error("Solicitação não encontrada.");
+  if (String(solicitacao.destinatario) !== userId)
+    throw new Error("Ação não autorizada.");
 
-  user.solicitacoesRecebidas =
-    user.solicitacoesRecebidas.filter(
-      (id: any) => id.toString() !== requesterId
-    );
-
-  requester.solicitacoesEnviadas =
-    requester.solicitacoesEnviadas.filter(
-      (id: any) => id.toString() !== userId
-    );
-
-  await user.save();
-  await requester.save();
+  solicitacao.status = "recusada";
+  await solicitacao.save();
 
   return { message: "Solicitação recusada." };
 };
