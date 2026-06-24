@@ -17,19 +17,19 @@ declare global {
 export function authMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   // =========================================================================
   // AMBIENTE DE TESTES: Autenticação manual temporária
   // =========================================================================
-  
+
   req.user = {
-    id: "6a3c2a5d11df0d8f22add551", // Seu ID gerado no MongoDB
-    email: "teste@academic.com",     // E-mail fictício para o payload
+    id: "6b4d3e6f7a8b9c0d1e2f3a4b",
+    email: "mariana@academic.com",
   };
 
   // Chama o próximo passo (controller) ignorando a checagem do token real
-  next(); 
+  next();
 
   // =========================================================================
   // CÓDIGO ORIGINAL (Comentei para quando seu colega finalizar o Login)

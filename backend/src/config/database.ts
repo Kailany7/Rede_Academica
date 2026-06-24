@@ -6,7 +6,9 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 export async function connectDatabase() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI as string);
+    await mongoose.connect(process.env.MONGODB_URI as string, {
+      dbName: "redeacademica"
+    });
 
     console.log(" OK MongoDB conectado com sucesso!");
   } catch (error) {
