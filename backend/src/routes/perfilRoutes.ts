@@ -6,11 +6,11 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.get("/perfil", perfilController.getMyPerfil);
+router.get("/", perfilController.getMyPerfil);
 
-router.get("/perfil/:id", perfilController.getPerfilById);
+router.get("/:id", perfilController.getPerfilById);
 
-router.put("/perfil", perfilController.updatePerfil);
+router.put("/", perfilController.updatePerfil);
 
 router.get("/conexoes", perfilController.getConnections);
 
