@@ -29,6 +29,7 @@ interface PostCardProps {
   avatarColor: string
 
   onLike: (id: string) => void
+  onComment: (postId: string, content: string) => void
 }
 
 export default function PostCard({
@@ -41,12 +42,20 @@ export default function PostCard({
   comments,
   liked,
   avatarColor,
-  onLike
+  onLike,
+  onComment
 }: PostCardProps) {
 
   const [showComments, setShowComments] = useState(false)
 
   const [commentText, setCommentText] = useState('')
+
+  const handleSendComment = () => {
+    if (commentText.trim()) {
+      onComment(id, commentText.trim())
+      setCommentText('')
+    }
+  }
 
   return (
 
@@ -183,12 +192,25 @@ export default function PostCard({
               ))
             }
 
-            <TextInput
-              value={commentText}
-              onChangeText={setCommentText}
-              placeholder="Adicione um comentário..."
-              style={styles.commentInput}
-            />
+            <View style={styles.commentInputRow}>
+              <TextInput
+                value={commentText}
+                onChangeText={setCommentText}
+                placeholder="Adicione um comentário..."
+                style={styles.commentInput}
+              />
+              <TouchableOpacity
+                style={styles.sendButton}
+                onPress={handleSendComment}
+                disabled={!commentText.trim()}
+              >
+                <Ionicons
+                  name="send"
+                  size={18}
+                  color={commentText.trim() ? "#1B4F8A" : "#ccc"}
+                />
+              </TouchableOpacity>
+            </View>
 
           </View>
 
@@ -281,11 +303,22 @@ const styles = StyleSheet.create({
     color: '#333'
   },
 
+  commentInputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
   commentInput: {
+    flex: 1,
     borderWidth: 1,
-    borderColor: '#DDD',
+    borderColor: "#DDD",
     borderRadius: 10,
-    padding: 10
-  }
+    padding: 10,
+  },
+
+  sendButton: {
+    padding: 8,
+  },
 
 })
