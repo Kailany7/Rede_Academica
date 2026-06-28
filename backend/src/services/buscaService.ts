@@ -1,7 +1,7 @@
 import Grupo from "../models/Grupo";
+import Publicacao from "../models/Publicacao";
 
 export async function buscarConteudos(termo: string) {
-  // Busca grupos pelo nome ou pela descrição
   const grupos = await Grupo.find({
     $or: [
       { nome: { $regex: termo, $options: "i" } },
@@ -9,18 +9,13 @@ export async function buscarConteudos(termo: string) {
     ],
   });
 
-  /*
-    Retor esse formato já no futuro.
+  const publicacoes = await Publicacao.find({
+    conteudo: { $regex: termo, $options: "i" },
+  });
 
-    Hoje:
-    usuarios e publicacoes ficam vazios.
-
-    Depois:
-    adicionar as buscas reais no arrays.
-  */
   return {
     usuarios: [],
-    publicacoes: [],
+    publicacoes,
     grupos,
   };
 }
