@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Alert } from "react-native";
 import {
+  Alert,
   View,
   Text,
   TextInput,
@@ -8,16 +8,40 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { widthPercentageToDP as wp } from "react-native-responsive-screen";
 import Colors from "../../constants/Colors";
 import styles from "./loginStyles";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", senha: "" });
+  const [carregando, setCarregando] = useState(false);
+
+  const handleLogin = async () => {
+    if (!formData.email.trim() || !formData.senha.trim()) {
+      Alert.alert("Atenção", "Preencha o email e a senha.");
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      await login({ email: formData.email, senha: formData.senha });
+      router.replace("/(auth)/onboarding");
+    } catch (error: any) {
+      const mensagem =
+        error?.response?.data?.message ||
+        "Erro ao fazer login. Tente novamente.";
+      Alert.alert("Erro", mensagem);
+    } finally {
+      setCarregando(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -78,11 +102,14 @@ export default function LoginScreen() {
 
           <TouchableOpacity
             style={styles.button}
-
-            // Navega para onboarding por enquanto, depois vai para a tela principal
-            onPress={() => router.push('/(auth)/onboarding')}
+            onPress={handleLogin}
+            disabled={carregando}
           >
-            <Text style={styles.buttonText}>Entrar</Text>
+            {carregando ? (
+              <ActivityIndicator color={Colors.primaryForeground} />
+            ) : (
+              <Text style={styles.buttonText}>Entrar</Text>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
