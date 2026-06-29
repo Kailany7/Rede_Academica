@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,96 +8,17 @@ import {
 } from "react-native";
 import { widthPercentageToDP as wp } from "react-native-responsive-screen";
 import { Ionicons } from "@expo/vector-icons";
-import Header from "../../../components/Header";
+import { useRouter } from "expo-router";
+
 import Colors from "../../../constants/Colors";
 import styles from "../styles/buscaStyles";
+import {
+  buscarConteudos,
+  SearchResult,
+  ResultType,
+} from "../../../services/buscaService";
 
-type ResultType = "user" | "post" | "group";
-
-interface SearchResult {
-  id: string;
-  type: ResultType;
-  title: string;
-  subtitle: string;
-  avatarColor: string;
-  course?: string;
-  semester?: string;
-}
-const allResults: SearchResult[] = [
-  {
-    id: "1",
-    type: "user",
-    title: "Maria Eduarda",
-    subtitle: "Monitora de Banco de Dados",
-    avatarColor: Colors.primary,
-    course: "Sistemas de Informação",
-    semester: "5º Semestre",
-  },
-  {
-    id: "2",
-    type: "user",
-    title: "João Victor",
-    subtitle: "Estudante de Farmácia",
-    avatarColor: Colors.accent,
-    course: "Farmácia",
-    semester: "4º Período",
-  },
-  {
-    id: "3",
-    type: "post",
-    title: "Resumo sobre administração de medicamentos",
-    subtitle: "Por Camila Alves • Há 1 hora",
-    avatarColor: Colors.secondary,
-    course: "Enfermagem",
-    semester: "2º Período",
-  },
-  {
-    id: "4",
-    type: "group",
-    title: "ADS - Programação Mobile",
-    subtitle: "38 membros",
-    avatarColor: Colors.primary,
-    course: "Análise e Desenvolvimento de Sistemas",
-    semester: "3º Semestre",
-  },
-  {
-    id: "5",
-    type: "post",
-    title: "Dicas para modelagem BPMN",
-    subtitle: "Por Lucas Henrique • Ontem",
-    avatarColor: Colors.accent,
-    course: "Sistemas de Informação",
-    semester: "6º Semestre",
-  },
-  {
-    id: "6",
-    type: "user",
-    title: "Fernanda Costa",
-    subtitle: "Apaixonada por UI/UX",
-    avatarColor: Colors.secondary,
-    course: "Análise e Desenvolvimento de Sistemas",
-    semester: "2º Semestre",
-  },
-  {
-    id: "7",
-    type: "group",
-    title: "Estudos de Anatomia",
-    subtitle: "52 membros",
-    avatarColor: Colors.primary,
-    course: "Enfermagem",
-    semester: "Todos os períodos",
-  },
-  {
-    id: "8",
-    type: "post",
-    title: "Como organizar relatórios de estágio",
-    subtitle: "Por Juliana Lima • Há 3 horas",
-    avatarColor: Colors.accent,
-    course: "Farmácia",
-    semester: "5º Período",
-  },
-];
-
+// TODO: conectar filtros reais ao backend quando Usuario e Publicacao existirem
 const courses: string[] = [
   "Todos os cursos",
   "Sistemas de Informação",
@@ -118,6 +39,8 @@ const semesters: string[] = [
 ];
 
 export default function BuscaScreen() {
+  const router = useRouter();
+
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [selectedCourse, setSelectedCourse] =
@@ -125,16 +48,50 @@ export default function BuscaScreen() {
   const [selectedSemester, setSelectedSemester] =
     useState<string>("Todos os semestres");
 
+  // Guarda os resultados vindos do backend
+  const [results, setResults] = useState<SearchResult[]>([]);
+
+  // Controla carregamento e erro
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const hasActiveFilters: boolean =
     selectedCourse !== "Todos os cursos" ||
     selectedSemester !== "Todos os semestres";
 
-  const filteredResults: SearchResult[] = allResults.filter(
-    (result: SearchResult) => {
-      const matchesSearch =
-        result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        result.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
+  /*
+    Delay na busca:
+    espera 500ms depois que o usuário para de digitar
+    antes de chamar o backend.
+  */
+  useEffect(() => {
+    const delayBusca = setTimeout(async () => {
+      try {
+        if (!searchQuery.trim()) {
+          setResults([]);
+          setErrorMessage("");
+          return;
+        }
 
+        setLoading(true);
+        setErrorMessage("");
+
+        const dados = await buscarConteudos(searchQuery);
+        setResults(dados);
+      } catch (error) {
+        setResults([]);
+        setErrorMessage("Não foi possível carregar os resultados.");
+      } finally {
+        setLoading(false);
+      }
+    }, 500);
+
+    // Cancela a busca anterior se o usuário continuar digitando
+    return () => clearTimeout(delayBusca);
+  }, [searchQuery]);
+
+  const filteredResults: SearchResult[] = results.filter(
+    (result: SearchResult) => {
       const matchesCourse =
         selectedCourse === "Todos os cursos" ||
         result.course === selectedCourse;
@@ -143,18 +100,16 @@ export default function BuscaScreen() {
         selectedSemester === "Todos os semestres" ||
         result.semester === selectedSemester;
 
-      return matchesSearch && matchesCourse && matchesSemester;
-    },
+      return matchesCourse && matchesSemester;
+    }
   );
 
-  // Limpa todos os filtros
   const clearFilters = (): void => {
     setSelectedCourse("Todos os cursos");
     setSelectedSemester("Todos os semestres");
     setShowFilters(false);
   };
 
-  // Retorna o ícone baseado no tipo
   const getIcon = (type: ResultType): string => {
     switch (type) {
       case "user":
@@ -166,7 +121,6 @@ export default function BuscaScreen() {
     }
   };
 
-  // Retorna o label baseado no tipo
   const getTypeLabel = (type: ResultType): string => {
     switch (type) {
       case "user":
@@ -178,15 +132,22 @@ export default function BuscaScreen() {
     }
   };
 
+  const handleResultPress = (result: SearchResult): void => {
+    if (result.type === "group") {
+      router.push({
+        pathname: "/grupos",
+        params: { id: result.id },
+      })
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Header />
-
       <ScrollView style={styles.content}>
         <View style={styles.innerContent}>
-          {/* Campo de busca */}
           <View style={styles.searchContainer}>
             <Ionicons name="search" size={20} color={Colors.mutedForeground} />
+
             <TextInput
               style={styles.searchInput}
               placeholder="Buscar pessoas, posts, grupos..."
@@ -195,7 +156,7 @@ export default function BuscaScreen() {
               onChangeText={setSearchQuery}
               autoCapitalize="none"
             />
-            {/* botão X só aparece quando tem texto digitado */}
+
             {searchQuery !== "" && (
               <TouchableOpacity onPress={() => setSearchQuery("")}>
                 <Ionicons
@@ -207,7 +168,6 @@ export default function BuscaScreen() {
             )}
           </View>
 
-          {/* Botões de filtro */}
           <View style={styles.filterRow}>
             <TouchableOpacity
               style={[
@@ -225,6 +185,7 @@ export default function BuscaScreen() {
                     : Colors.cardForeground
                 }
               />
+
               <Text
                 style={[
                   styles.filterButtonText,
@@ -246,11 +207,10 @@ export default function BuscaScreen() {
             )}
           </View>
 
-          {/* Painel de filtros — só aparece quando showFilters é true */}
           {showFilters && (
             <View style={styles.filtersCard}>
-              {/* Filtro de curso */}
               <Text style={styles.filterLabel}>Curso</Text>
+
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={{ flexDirection: "row", gap: wp("2%") }}>
                   {courses.map((course: string) => (
@@ -276,10 +236,10 @@ export default function BuscaScreen() {
                 </View>
               </ScrollView>
 
-              {/* Filtro de semestre */}
               <Text style={[styles.filterLabel, { marginTop: wp("4%") }]}>
                 Semestre
               </Text>
+
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={{ flexDirection: "row", gap: wp("2%") }}>
                   {semesters.map((semester: string) => (
@@ -308,86 +268,114 @@ export default function BuscaScreen() {
             </View>
           )}
 
-          {/* Conteúdo condicional — 3 situações */}
-          {!searchQuery && !hasActiveFilters ? (
-            // SITUAÇÃO 1 — nenhuma busca feita ainda
+          {loading && (
             <View style={styles.emptyCard}>
-              <View style={styles.emptyIconContainer}>
-                <Ionicons
-                  name="search"
-                  size={40}
-                  color={Colors.mutedForeground}
-                />
-              </View>
-              <Text style={styles.emptyTitle}>Busque o que precisa</Text>
-              <Text style={styles.emptySubtitle}>
-                Encontre pessoas, publicações e grupos
-              </Text>
+              <Text style={styles.emptyTitle}>Carregando...</Text>
+              <Text style={styles.emptySubtitle}>Buscando resultados</Text>
             </View>
-          ) : filteredResults.length === 0 ? (
-            // SITUAÇÃO 2 — buscou mas não encontrou
-            <View style={styles.emptyCard}>
-              <View style={styles.emptyIconContainer}>
-                <Ionicons
-                  name="search"
-                  size={40}
-                  color={Colors.mutedForeground}
-                />
-              </View>
-              <Text style={styles.emptyTitle}>Nenhum resultado</Text>
-              <Text style={styles.emptySubtitle}>
-                Tente buscar por outro termo ou ajuste os filtros
-              </Text>
-            </View>
-          ) : (
-            // SITUAÇÃO 3 — encontrou resultados
-            <View>
-              <Text style={styles.resultsCount}>
-                {filteredResults.length}{" "}
-                {filteredResults.length === 1 ? "resultado" : "resultados"}
-              </Text>
+          )}
 
-              {filteredResults.map((result: SearchResult) => (
-                <TouchableOpacity key={result.id} style={styles.resultCard}>
-                  {/* Avatar com cor e ícone do tipo */}
-                  <View
-                    style={[
-                      styles.resultAvatar,
-                      { backgroundColor: result.avatarColor },
-                    ]}
-                  >
+          {errorMessage !== "" && !loading && (
+            <View style={styles.emptyCard}>
+              <Text style={styles.emptyTitle}>Ops!</Text>
+              <Text style={styles.emptySubtitle}>{errorMessage}</Text>
+            </View>
+          )}
+
+          {!loading && errorMessage === "" && (
+            <>
+              {!searchQuery && !hasActiveFilters ? (
+                <View style={styles.emptyCard}>
+                  <View style={styles.emptyIconContainer}>
                     <Ionicons
-                      name={getIcon(result.type) as any}
-                      size={24}
-                      color={Colors.primaryForeground}
+                      name="search"
+                      size={40}
+                      color={Colors.mutedForeground}
                     />
                   </View>
 
-                  {/* Informações */}
-                  <View style={styles.resultInfo}>
-                    <View style={styles.resultHeader}>
-                      <Text style={styles.resultTitle}>{result.title}</Text>
-                      <Text style={styles.resultBadge}>
-                        {getTypeLabel(result.type)}
-                      </Text>
-                    </View>
-                    <Text style={styles.resultSubtitle}>{result.subtitle}</Text>
+                  <Text style={styles.emptyTitle}>Busque o que precisa</Text>
+                  <Text style={styles.emptySubtitle}>
+                    Encontre pessoas, publicações e grupos
+                  </Text>
+                </View>
+              ) : filteredResults.length === 0 ? (
+                <View style={styles.emptyCard}>
+                  <View style={styles.emptyIconContainer}>
+                    <Ionicons
+                      name="search"
+                      size={40}
+                      color={Colors.mutedForeground}
+                    />
+                  </View>
 
-                    {/* Tags de curso e semestre */}
-                    {result.course && result.semester && (
-                      <View style={styles.resultTags}>
-                        <Text style={styles.resultTag}>{result.course}</Text>
-                        {result.semester !== "Todos os semestres" && (
-                          <Text style={styles.resultTag}>
-                            {result.semester}
+                  <Text style={styles.emptyTitle}>Nenhum resultado</Text>
+                  <Text style={styles.emptySubtitle}>
+                    Tente buscar por outro termo ou ajuste os filtros
+                  </Text>
+                </View>
+              ) : (
+                <View>
+                  <Text style={styles.resultsCount}>
+                    {filteredResults.length}{" "}
+                    {filteredResults.length === 1
+                      ? "resultado"
+                      : "resultados"}
+                  </Text>
+
+                  {filteredResults.map((result: SearchResult) => (
+                    <TouchableOpacity
+                      key={result.id}
+                      style={styles.resultCard}
+                      onPress={() => handleResultPress(result)}
+                    >
+                      <View
+                        style={[
+                          styles.resultAvatar,
+                          { backgroundColor: result.avatarColor },
+                        ]}
+                      >
+                        <Ionicons
+                          name={getIcon(result.type) as any}
+                          size={24}
+                          color={Colors.primaryForeground}
+                        />
+                      </View>
+
+                      <View style={styles.resultInfo}>
+                        <View style={styles.resultHeader}>
+                          <Text style={styles.resultTitle}>
+                            {result.title}
                           </Text>
+
+                          <Text style={styles.resultBadge}>
+                            {getTypeLabel(result.type)}
+                          </Text>
+                        </View>
+
+                        <Text style={styles.resultSubtitle}>
+                          {result.subtitle}
+                        </Text>
+
+                        {result.course && result.semester && (
+                          <View style={styles.resultTags}>
+                            <Text style={styles.resultTag}>
+                              {result.course}
+                            </Text>
+
+                            {result.semester !== "Todos os semestres" && (
+                              <Text style={styles.resultTag}>
+                                {result.semester}
+                              </Text>
+                            )}
+                          </View>
                         )}
                       </View>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </>
           )}
         </View>
       </ScrollView>

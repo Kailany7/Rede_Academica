@@ -6,13 +6,15 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
+  TextInput,
+  Alert
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import PostCard from '../../../components/PostCard'
 import { ExperienceCard } from '../../../components/cardExperiencia'
-import { posts as MOCK_POSTS } from '../../../data/posts'
+import { usePosts } from '../../../contexts/postContext'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -74,30 +76,74 @@ function InfoRow({ icon, label, value }: InfoRowProps) {
 export default function PerfilScreen() {
   const [user] = useState<UserProfile>(MOCK_USER);
   const [connected, setConnected] = useState(false);
-  const [posts, setPosts] = useState(
+  const { posts, toggleLike, addComment } = usePosts();
+  const userPosts = posts.filter((post) => post.author === user.name);
 
-  MOCK_POSTS.filter(
-    (post) => post.author === user.name
-  )
-
-)
   const router = useRouter();
-  const handleLike = (id: string) => {
 
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === id
-          ? {
-            ...post,
-            liked: !post.liked,
-            likes: post.liked
-              ? post.likes - 1
-              : post.likes + 1
-          }
-          : post
+  // HABILIDADES
+  const [skills, setSkills] = useState([
+    'React Native',
+    'TypeScript',
+    'JavaScript',
+    'Node.js',
+    'MongoDB',
+    'Git/GitHub',
+    'UI/UX',
+    'Comunicação',
+    'Trabalho em equipe',
+    'Resolução de problemas'
+  ]);
+
+  const [newSkill, setNewSkill] = useState("");
+  const [editingSkill, setEditingSkill] = useState<string | null>(null);
+
+  // adicionar skill
+  const addSkill = () => {
+
+    if (newSkill.trim() === "") return;
+
+    setSkills((prev) => [
+      ...prev,
+      newSkill.trim()
+    ]);
+
+    setNewSkill("");
+
+  };
+
+  // remover skill
+  const removeSkill = (skillToRemove: string) => {
+
+    setSkills(
+      skills.filter(
+        (skill) => skill !== skillToRemove
       )
-    )
-  }
+    );
+
+  };
+
+  // editar skill
+  const editSkill = () => {
+
+    if (
+      editingSkill === null ||
+      newSkill.trim() === ""
+    ) return;
+
+    setSkills((prev) =>
+      prev.map((skill) =>
+        skill === editingSkill
+          ? newSkill.trim()
+          : skill
+      )
+    );
+
+    setEditingSkill(null);
+    setNewSkill("");
+
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -203,30 +249,118 @@ export default function PerfilScreen() {
               description="Participação no desenvolvimento de APIs REST utilizando Node.js, Express e MongoDB. Implementação de autenticação, integração com banco de dados e testes de rotas."
             />
           </View>
+          {/* HABILIDADES */}
+          <View style={styles.skillsSection}>
+
+            <View style={styles.skillsHeader}>
+              <Text style={styles.skillsTitle}>
+                Habilidades
+              </Text>
+            </View>
+
+            {/* HEADER */}
+            <View style={styles.skillsTopBar}>
+
+              <TextInput
+                value={newSkill}
+                onChangeText={setNewSkill}
+                placeholder={
+                  editingSkill
+                    ? "Editar habilidade"
+                    : "Adicionar habilidade"
+                }
+                placeholderTextColor="#9BB5C8"
+                style={styles.skillInput}
+              />
+
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={
+                  editingSkill
+                    ? editSkill
+                    : addSkill
+                }
+              >
+                <Ionicons
+                  name={
+                    editingSkill
+                      ? "checkmark-outline"
+                      : "add-outline"
+                  }
+                  size={18}
+                  color="#1B4F8A"
+                />
+              </TouchableOpacity>
+
+            </View>
+
+            {/* LISTA */}
+            <View style={styles.skillsContainer}>
+
+              {skills.map((skill) => (
+
+                <TouchableOpacity
+                  key={skill}
+                  style={styles.skillTag}
+                  onPress={() => {
+                    setEditingSkill(skill);
+                    setNewSkill(skill);
+                  }}
+                  onLongPress={() => removeSkill(skill)}
+                >
+
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6
+                    }}
+                  >
+
+                    <Text style={styles.skillText}>
+                      {skill}
+                    </Text>
+
+                    <Ionicons
+                      name="create-outline"
+                      size={12}
+                      color="#5B7AA0"
+                    />
+
+                  </View>
+
+                </TouchableOpacity>
+
+              ))}
+
+            </View>
+
+          </View>
           {/* POSTS */}
 
           <View style={styles.postsContainer}>
             <Text style={styles.postsTitle}>Publicações</Text>
 
-            {posts.map((post) => (
+            {userPosts.map((post) => (
               <PostCard
                 key={post.id}
                 id={post.id}
                 author={post.author}
-                course={post.course}
+                course={post.authorCourse}
                 content={post.content}
                 timestamp={post.timestamp}
                 likes={post.likes}
                 comments={post.comments}
-                liked={post.liked}
-                avatarColor={post.avatarColor}
-                onLike={handleLike}
+                liked={post.isLiked}
+                avatarColor={post.authorAvatar}
+                onLike={toggleLike}
+                onComment={addComment}
               />
             ))}
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 }
 
@@ -404,5 +538,99 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1B3A5C',
     marginBottom: 8
+  },
+
+  skillsSection: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 12,
+
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1
+    },
+
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+
+  skillsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+
+  skillsTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1B3A5C',
+  },
+
+  editSkillsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+
+  editSkillsText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1B4F8A',
+  },
+
+  skillsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+
+  skillTag: {
+    backgroundColor: '#E8F1F8',
+    borderWidth: 1,
+    borderColor: '#D4E4F2',
+
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+
+    borderRadius: 999,
+  },
+
+  skillText: {
+    color: '#1B4F8A',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+
+  skillsTopBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+
+  skillInput: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#DCE7F2',
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#1B3A5C',
+  },
+
+  addButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 999,
+    backgroundColor: '#E8F1F8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
   },
 });

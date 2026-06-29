@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     paddingTop: hp('6%'),
-    paddingBottom: hp('3%'),
+    paddingBottom: hp('6%'),
     paddingHorizontal: wp('8%'),
     width: '100%',
   },
