@@ -20,7 +20,7 @@ export function authMiddleware(
   next: NextFunction,
 ): void {
 
-  // INFORMAÇÕES DE AUTENTICAÇÃO SIMULADAS PARA TESTES
+  // INFORMAÇÕES DE AUTENTICAÇÃO SIMULADAS PARA TESTES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   req.user = {
     id: "6b4d3e6f7a8b9c0d1e2f3a4b",

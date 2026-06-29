@@ -70,7 +70,7 @@ export const sendRequest = async (senderId: string, receiverId: string) => {
   });
   if (jaConectados) throw new Error("Vocês já são conexões.");
 
-  // verifica se já existe uma solicitação pendente
+  // verifica se existe uma solicitação pendente
   const solicitacaoExistente = await Solicitacao.findOne({
     remetente: senderId,
     destinatario: receiverId,
@@ -111,7 +111,7 @@ export const acceptRequest = async (userId: string, requestId: string) => {
   return { message: "Conexão aceita." };
 };
 
-// Recusar solicitação
+// recusa solicitação
 export const rejectRequest = async (userId: string, requestId: string) => {
   const solicitacao = await Solicitacao.findById(requestId);
 
