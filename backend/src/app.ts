@@ -4,6 +4,7 @@ import cors from "cors";
 import grupoRoutes from "./routes/grupoRoutes";
 import buscaRoutes from "./routes/buscaRoutes";
 import feedRoutes from "./routes/feedRoutes";
+import perfilRoutes from "./routes/perfilRoutes";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use("/grupos", grupoRoutes);
 app.use("/busca", buscaRoutes);
 app.use("/feed", feedRoutes);
+app.use("/perfil", perfilRoutes);
 
 // Rota inicial
 app.get("/", (req, res) => {
