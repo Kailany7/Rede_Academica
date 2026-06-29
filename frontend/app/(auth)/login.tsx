@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Alert,
   View,
   Text,
   TextInput,
@@ -9,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,10 +22,13 @@ export default function LoginScreen() {
   const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", senha: "" });
   const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
 
   const handleLogin = async () => {
+    setErro("");
+
     if (!formData.email.trim() || !formData.senha.trim()) {
-      Alert.alert("Atenção", "Preencha o email e a senha.");
+      setErro("Preencha o email e a senha.");
       return;
     }
 
@@ -37,7 +40,7 @@ export default function LoginScreen() {
       const mensagem =
         error?.response?.data?.message ||
         "Erro ao fazer login. Tente novamente.";
-      Alert.alert("Erro", mensagem);
+      setErro(mensagem);
     } finally {
       setCarregando(false);
     }
@@ -87,7 +90,10 @@ export default function LoginScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             value={formData.email}
-            onChangeText={(text) => setFormData({ ...formData, email: text })}
+            onChangeText={(text) => {
+              setErro("");
+              setFormData({ ...formData, email: text });
+            }}
           />
 
           <Text style={styles.label}>Senha</Text>
@@ -97,8 +103,22 @@ export default function LoginScreen() {
             placeholderTextColor={Colors.mutedForeground}
             secureTextEntry
             value={formData.senha}
-            onChangeText={(text) => setFormData({ ...formData, senha: text })}
+            onChangeText={(text) => {
+              setErro("");
+              setFormData({ ...formData, senha: text });
+            }}
           />
+
+          {erro ? (
+            <View style={erroStyles.container}>
+              <Ionicons
+                name="alert-circle-outline"
+                size={16}
+                color={Colors.destructive}
+              />
+              <Text style={erroStyles.texto}>{erro}</Text>
+            </View>
+          ) : null}
 
           <TouchableOpacity
             style={styles.button}
@@ -116,3 +136,21 @@ export default function LoginScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const erroStyles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#FEE2E2",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginTop: 12,
+  },
+  texto: {
+    color: Colors.destructive,
+    fontSize: 13,
+    flex: 1,
+  },
+});

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Alert,
   View,
   Text,
   TextInput,
@@ -9,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -36,22 +36,26 @@ export default function CadastroScreen() {
     bio: "",
   });
   const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
 
   const handleChange = (field: keyof FormData, value: string) => {
+    setErro("");
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleCadastro = async () => {
+    setErro("");
+
     if (
       !formData.nome.trim() ||
       !formData.email.trim() ||
       !formData.senha.trim()
     ) {
-      Alert.alert("Atenção", "Nome, email e senha são obrigatórios.");
+      setErro("Nome, email e senha são obrigatórios.");
       return;
     }
     if (formData.senha.length < 6) {
-      Alert.alert("Atenção", "A senha deve ter pelo menos 6 caracteres.");
+      setErro("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
 
@@ -63,7 +67,7 @@ export default function CadastroScreen() {
       const mensagem =
         error?.response?.data?.message ||
         "Erro ao criar conta. Tente novamente.";
-      Alert.alert("Erro", mensagem);
+      setErro(mensagem);
     } finally {
       setCarregando(false);
     }
@@ -158,6 +162,17 @@ export default function CadastroScreen() {
             textAlignVertical="top"
           />
 
+          {erro ? (
+            <View style={erroStyles.container}>
+              <Ionicons
+                name="alert-circle-outline"
+                size={16}
+                color={Colors.destructive}
+              />
+              <Text style={erroStyles.texto}>{erro}</Text>
+            </View>
+          ) : null}
+
           <TouchableOpacity
             style={styles.button}
             onPress={handleCadastro}
@@ -174,3 +189,21 @@ export default function CadastroScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const erroStyles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#FEE2E2",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginTop: 12,
+  },
+  texto: {
+    color: Colors.destructive,
+    fontSize: 13,
+    flex: 1,
+  },
+});
