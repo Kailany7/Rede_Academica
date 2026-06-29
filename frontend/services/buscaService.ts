@@ -21,10 +21,22 @@ interface GrupoApi {
   dataCriacao: string;
 }
 
+// Formato que vem do backend para publicações
+interface PublicacaoApi {
+  _id: string;
+  autor: string;
+  autorCurso: string;
+  avatarColor: string;
+  conteudo: string;
+  curtidas: number;
+  comentarios: string[];
+  data: string;
+}
+
 // Formato da resposta da rota GET /busca
 interface BuscaResponse {
   usuarios: [];
-  publicacoes: [];
+  publicacoes: PublicacaoApi[];
   grupos: GrupoApi[];
 }
 
@@ -36,7 +48,7 @@ export async function buscarConteudos(termo: string): Promise<SearchResult[]> {
     },
   });
 
-  // obs: Por enquanto transformamos apenas grupos em resultados da tela, falta transformar usuários e publicações
+
   const gruposFormatados: SearchResult[] = response.data.grupos.map((grupo) => ({
     id: grupo._id,
     type: "group",
@@ -45,5 +57,18 @@ export async function buscarConteudos(termo: string): Promise<SearchResult[]> {
     avatarColor: "#0A4A7A",
   }));
 
-  return gruposFormatados;
+  
+  const publicacoesFormatadas: SearchResult[] = response.data.publicacoes.map(
+    (publicacao) => ({
+      id: publicacao._id,
+      type: "post",
+      title: publicacao.conteudo,
+      subtitle: `Por ${publicacao.autor}`,
+      avatarColor: publicacao.avatarColor || "#1B4F8A",
+      course: publicacao.autorCurso,
+    })
+  );
+
+  
+  return [...gruposFormatados, ...publicacoesFormatadas];
 }
