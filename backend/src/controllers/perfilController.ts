@@ -63,6 +63,37 @@ export const getConnections = async (req: Request, res: Response) => {
   }
 };
 
+// Remover conexão
+export const removeConnection = async (req: Request, res: Response) => {
+  try {
+    const userId = String(req.user!.id);
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+    const response = await perfilService.removeConnection(userId, id);
+
+    return res.status(200).json(response);
+  } catch (error: any) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// Listar sugestões de conexão
+export const getSuggestions = async (req: Request, res: Response) => {
+  try {
+    const userId = String(req.user!.id);
+
+    const suggestions = await perfilService.getSuggestions(userId);
+
+    return res.status(200).json(suggestions);
+  } catch (error: any) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 // Listar solicitações recebidas
 export const getRequests = async (req: Request, res: Response) => {
   try {

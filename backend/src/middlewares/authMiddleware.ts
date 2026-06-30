@@ -23,8 +23,8 @@ export const autenticar = (
       email: string;
     };
 
-    (req as any).userId = decoded.id;
-    (req as any).userEmail = decoded.email;
+    req.user = { id: decoded.id, email: decoded.email };
+    (req as any).userId = decoded.id; // mantido por compatibilidade com authController
 
     next();
   } catch (error) {

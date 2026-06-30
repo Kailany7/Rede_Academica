@@ -1,6 +1,13 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
 
+export interface IExperiencia {
+  title: string;
+  company: string;
+  period: string;
+  description: string;
+}
+
 export interface IUsuario extends Document {
   nome: string;
   email: string;
@@ -9,9 +16,20 @@ export interface IUsuario extends Document {
   semestre: string;
   bio: string;
   avatarColor: string;
+  experiences: IExperiencia[];
   dataCriacao: Date;
   compararSenha(senhaDigitada: string): Promise<boolean>;
 }
+
+const ExperienciaSchema = new Schema<IExperiencia>(
+  {
+    title: { type: String, default: "" },
+    company: { type: String, default: "" },
+    period: { type: String, default: "" },
+    description: { type: String, default: "" },
+  },
+  { _id: false },
+);
 
 const UsuarioSchema = new Schema<IUsuario>({
   nome: { type: String, required: true, trim: true },
@@ -27,6 +45,7 @@ const UsuarioSchema = new Schema<IUsuario>({
   semestre: { type: String, default: "" },
   bio: { type: String, default: "" },
   avatarColor: { type: String, default: "#1B4F8A" },
+  experiences: { type: [ExperienciaSchema], default: [] },
   dataCriacao: { type: Date, default: Date.now },
 });
 

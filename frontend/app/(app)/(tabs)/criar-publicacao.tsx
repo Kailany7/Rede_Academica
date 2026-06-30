@@ -17,10 +17,12 @@ import { router } from "expo-router";
 import styles from "../styles/criarPublicacaoStyles";
 
 import { usePosts } from "../../../contexts/postContext";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function CriarPublicacao() {
   const [content, setContent] = useState("");
   const { addPost } = usePosts();
+  const { usuario } = useAuth();
 
   const handleSubmit = async () => {
     if (content.trim()) {
@@ -52,12 +54,21 @@ export default function CriarPublicacao() {
 
           <View style={styles.card}>
             <View style={styles.userContainer}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>U</Text>
+              <View
+                style={[
+                  styles.avatar,
+                  usuario?.avatarColor
+                    ? { backgroundColor: usuario.avatarColor }
+                    : null,
+                ]}
+              >
+                <Text style={styles.avatarText}>
+                  {usuario?.nome?.[0]?.toUpperCase() || "U"}
+                </Text>
               </View>
               <View style={styles.userInfo}>
-                <Text style={styles.userName}>Usuário</Text>
-                <Text style={styles.userCourse}>Ciência da Computação</Text>
+                <Text style={styles.userName}>{usuario?.nome || "Usuário"}</Text>
+                <Text style={styles.userCourse}>{usuario?.curso || ""}</Text>
               </View>
             </View>
 

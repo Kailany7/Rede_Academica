@@ -46,9 +46,9 @@ export default function EditarPerfilScreen() {
     getMyPerfil()
       .then((data) => {
         setFormData({
-          nome: data.name,
-          curso: data.course,
-          semestre: data.semester,
+          nome: data.nome,
+          curso: data.curso,
+          semestre: data.semestre,
           bio: data.bio,
           experiences: data.experiences || [],
         });

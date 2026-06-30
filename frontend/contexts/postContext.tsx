@@ -13,6 +13,7 @@ import {
   comentarPublicacao,
   PublicacaoApi,
 } from "../services/feedService";
+import { useAuth } from "./AuthContext";
 
 export interface Comment {
   id: string;
@@ -82,6 +83,7 @@ function formatTimestamp(data: string): string {
 const PostsContext = createContext({} as PostsContextType);
 
 export function PostsProvider({ children }: { children: ReactNode }) {
+  const { usuario } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -105,9 +107,9 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   async function addPost(content: string) {
     try {
       const nova = await criarPublicacao({
-        autor: "Usuário",
-        autorCurso: "Ciência da Computação",
-        avatarColor: "#1B4F8A",
+        autor: usuario?.nome || "Usuário",
+        autorCurso: usuario?.curso || "",
+        avatarColor: usuario?.avatarColor || "#1B4F8A",
         conteudo: content,
       });
       setPosts((prev) => [mapApiToPost(nova), ...prev]);
@@ -138,9 +140,9 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   async function addComment(postId: string, conteudo: string) {
     try {
       const novo = await comentarPublicacao(postId, {
-        autor: "Usuário",
-        autorCurso: "Ciência da Computação",
-        avatarColor: "#1B4F8A",
+        autor: usuario?.nome || "Usuário",
+        autorCurso: usuario?.curso || "",
+        avatarColor: usuario?.avatarColor || "#1B4F8A",
         conteudo,
       });
       setPosts((prev) =>

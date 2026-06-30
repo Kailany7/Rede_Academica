@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function CadastroScreen() {
   const router = useRouter();
+  const { cadastrar } = useAuth();
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -17,20 +17,8 @@ export default function CadastroScreen() {
   const handleCadastro = async () => {
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:3000/cadastrar", {
-        nome,
-        email,
-        senha,
-        curso,
-        semestre,
-        bio,
-      });
-
-      // Salvar token
-      await AsyncStorage.setItem("token", res.data.token);
-
-      // Redirecionar para perfil
-      router.replace("/perfil");
+      await cadastrar({ nome, email, senha, curso, semestre, bio });
+      // O AuthGuard em app/_layout.tsx redireciona automaticamente após o cadastro
     } catch (err) {
       console.error("Erro ao cadastrar:", err);
     } finally {

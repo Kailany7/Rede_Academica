@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { login } from "../../services/perfilApi";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
@@ -13,13 +13,8 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await login(email, senha);
-
-      // Salvar token
-      await AsyncStorage.setItem("token", response.token);
-
-      // Redirecionar para perfil
-      router.replace("/perfil");
+      await login({ email, senha });
+      // O AuthGuard em app/_layout.tsx redireciona automaticamente após o login
     } catch (err) {
       console.error("Erro ao fazer login:", err);
     } finally {
