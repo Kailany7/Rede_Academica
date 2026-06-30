@@ -11,7 +11,7 @@ export async function buscarConteudos(termo: string) {
 
   const publicacoes = await Publicacao.find({
     conteudo: { $regex: termo, $options: "i" },
-  });
+  }).populate("autor", "nome email curso avatarColor");
 
   return {
     usuarios: [],

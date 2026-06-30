@@ -13,6 +13,7 @@ import {
   comentarPublicacao,
   PublicacaoApi,
 } from "../services/feedService";
+import { useAuth } from "./AuthContext";
 
 export interface Comment {
   id: string;
@@ -44,26 +45,6 @@ interface PostsContextType {
   addComment: (postId: string, content: string) => Promise<void>;
 }
 
-function mapApiToPost(api: PublicacaoApi): Post {
-  return {
-    id: api._id,
-    author: api.autor,
-    authorCourse: api.autorCurso,
-    authorAvatar: api.avatarColor,
-    content: api.conteudo,
-    timestamp: formatTimestamp(api.data),
-    likes: api.curtidas,
-    comments: (api.comentarios || []).map((c) => ({
-      id: c._id,
-      author: c.autor,
-      authorAvatar: c.avatarColor || "#1B4F8A",
-      content: c.conteudo,
-      timestamp: formatTimestamp(c.data),
-    })),
-    isLiked: false,
-  };
-}
-
 function formatTimestamp(data: string): string {
   const agora = new Date();
   const dt = new Date(data);
@@ -79,12 +60,33 @@ function formatTimestamp(data: string): string {
   return dt.toLocaleDateString("pt-BR");
 }
 
+function mapApiToPost(api: PublicacaoApi): Post {
+  return {
+    id: api._id,
+    author: api.autor?.nome || "Desconhecido",
+    authorCourse: api.autor?.curso || "",
+    authorAvatar: api.autor?.avatarColor || "#1B4F8A",
+    content: api.conteudo,
+    timestamp: formatTimestamp(api.data),
+    likes: api.curtidas,
+    comments: (api.comentarios || []).map((c) => ({
+      id: c._id,
+      author: c.autor?.nome || "Desconhecido",
+      authorAvatar: c.autor?.avatarColor || "#1B4F8A",
+      content: c.conteudo,
+      timestamp: formatTimestamp(c.data),
+    })),
+    isLiked: api.curtido,
+  };
+}
+
 const PostsContext = createContext({} as PostsContextType);
 
 export function PostsProvider({ children }: { children: ReactNode }) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { usuario } = useAuth();
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -99,17 +101,14 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    if (usuario) {
+      fetchPosts();
+    }
+  }, [usuario, fetchPosts]);
 
   async function addPost(content: string) {
     try {
-      const nova = await criarPublicacao({
-        autor: "Usuário",
-        autorCurso: "Ciência da Computação",
-        avatarColor: "#1B4F8A",
-        conteudo: content,
-      });
+      const nova = await criarPublicacao(content);
       setPosts((prev) => [mapApiToPost(nova), ...prev]);
     } catch (error) {
       console.error("Erro ao criar publicação:", error);
@@ -117,32 +116,45 @@ export function PostsProvider({ children }: { children: ReactNode }) {
   }
 
   async function toggleLike(id: string) {
+    const postAtual = posts.find((p) => p.id === id);
+    const optimisticLikes = postAtual
+      ? postAtual.isLiked
+        ? postAtual.likes - 1
+        : postAtual.likes + 1
+      : 0;
+
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? { ...p, isLiked: !p.isLiked, likes: optimisticLikes }
+          : p
+      )
+    );
+
     try {
       const atualizada = await curtirPublicacao(id);
       setPosts((prev) =>
         prev.map((p) =>
           p.id === id
-            ? {
-                ...p,
-                likes: atualizada.curtidas,
-                isLiked: !p.isLiked,
-              }
+            ? { ...p, likes: atualizada.curtidas, isLiked: atualizada.curtido }
             : p
         )
       );
     } catch (error) {
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? { ...p, isLiked: postAtual?.isLiked ?? false, likes: postAtual?.likes ?? 0 }
+            : p
+        )
+      );
       console.error("Erro ao curtir:", error);
     }
   }
 
   async function addComment(postId: string, conteudo: string) {
     try {
-      const novo = await comentarPublicacao(postId, {
-        autor: "Usuário",
-        autorCurso: "Ciência da Computação",
-        avatarColor: "#1B4F8A",
-        conteudo,
-      });
+      const novo = await comentarPublicacao(postId, conteudo);
       setPosts((prev) =>
         prev.map((p) =>
           p.id === postId
@@ -152,8 +164,8 @@ export function PostsProvider({ children }: { children: ReactNode }) {
                   ...p.comments,
                   {
                     id: novo._id,
-                    author: novo.autor,
-                    authorAvatar: novo.avatarColor || "#1B4F8A",
+                    author: novo.autor?.nome || "Desconhecido",
+                    authorAvatar: novo.autor?.avatarColor || "#1B4F8A",
                     content: novo.conteudo,
                     timestamp: formatTimestamp(novo.data),
                   },
