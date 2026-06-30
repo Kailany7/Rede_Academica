@@ -34,7 +34,6 @@ export default function LoginScreen() {
     setCarregando(true);
     try {
       await login({ email: formData.email, senha: formData.senha });
-      router.replace("/(auth)/onboarding");
     } catch (error: any) {
       const mensagem =
         error?.response?.data?.message ||
@@ -56,7 +55,7 @@ export default function LoginScreen() {
       >
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <Ionicons name="log-in-outline" size={36} color={Colors.primaryForeground} />
+            <Ionicons name="school-outline" size={36} color={Colors.primaryForeground} />
           </View>
           <Text style={styles.title}>Bem-vindo de volta</Text>
           <Text style={styles.subtitle}>Entre na sua conta para continuar</Text>
