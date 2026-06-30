@@ -58,6 +58,7 @@ export const cadastrar = async (req: Request, res: Response): Promise<void> => {
         semestre: novoUsuario.semestre,
         bio: novoUsuario.bio,
         avatarColor: novoUsuario.avatarColor,
+        onboardingCompleto: novoUsuario.onboardingCompleto,
       },
     });
   } catch (error) {
@@ -110,6 +111,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         semestre: usuario.semestre,
         bio: usuario.bio,
         avatarColor: usuario.avatarColor,
+        onboardingCompleto: usuario.onboardingCompleto,
       },
     });
   } catch (error) {

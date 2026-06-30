@@ -9,6 +9,7 @@ export interface IUsuario extends Document {
   semestre: string;
   bio: string;
   avatarColor: string;
+  onboardingCompleto: boolean;
   dataCriacao: Date;
   compararSenha(senhaDigitada: string): Promise<boolean>;
 }
@@ -27,6 +28,10 @@ const UsuarioSchema = new Schema<IUsuario>({
   semestre: { type: String, default: "" },
   bio: { type: String, default: "" },
   avatarColor: { type: String, default: "#1B4F8A" },
+  onboardingCompleto: {
+    type: Boolean,
+    default: false,
+  },
   dataCriacao: { type: Date, default: Date.now },
 });
 

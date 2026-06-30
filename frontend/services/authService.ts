@@ -8,6 +8,7 @@ export interface UsuarioLogado {
   semestre: string;
   bio: string;
   avatarColor: string;
+  onboardingCompleto: boolean;
 }
 
 export interface RespostaAuth {
