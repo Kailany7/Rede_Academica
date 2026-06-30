@@ -207,16 +207,17 @@ export default function TabsLayout() {
           }}
         />
 
-        
 
-        {/* BOTÃO FLUTUANTE */}
-        <FloatingChat />
+
+
       </Tabs>
-
+      {/* BOTÃO FLUTUANTE */}
+      <FloatingChat />
 
     </View>
   )
 }
+
 
 const styles = StyleSheet.create({
 
@@ -260,6 +261,7 @@ const styles = StyleSheet.create({
 
     elevation: 8,
   },
+
 
   // Círculo branco interno
   innerCircle: {

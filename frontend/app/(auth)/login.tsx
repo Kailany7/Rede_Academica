@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Alert } from "react-native";
 import {
   View,
   Text,
@@ -8,16 +7,44 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { widthPercentageToDP as wp } from "react-native-responsive-screen";
 import Colors from "../../constants/Colors";
 import styles from "./loginStyles";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", senha: "" });
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
+
+  const handleLogin = async () => {
+    setErro("");
+
+    if (!formData.email.trim() || !formData.senha.trim()) {
+      setErro("Preencha o email e a senha.");
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      await login({ email: formData.email, senha: formData.senha });
+      router.replace("/(auth)/onboarding");
+    } catch (error: any) {
+      const mensagem =
+        error?.response?.data?.message ||
+        "Erro ao fazer login. Tente novamente.";
+      setErro(mensagem);
+    } finally {
+      setCarregando(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -63,7 +90,10 @@ export default function LoginScreen() {
             keyboardType="email-address"
             autoCapitalize="none"
             value={formData.email}
-            onChangeText={(text) => setFormData({ ...formData, email: text })}
+            onChangeText={(text) => {
+              setErro("");
+              setFormData({ ...formData, email: text });
+            }}
           />
 
           <Text style={styles.label}>Senha</Text>
@@ -73,19 +103,54 @@ export default function LoginScreen() {
             placeholderTextColor={Colors.mutedForeground}
             secureTextEntry
             value={formData.senha}
-            onChangeText={(text) => setFormData({ ...formData, senha: text })}
+            onChangeText={(text) => {
+              setErro("");
+              setFormData({ ...formData, senha: text });
+            }}
           />
+
+          {erro ? (
+            <View style={erroStyles.container}>
+              <Ionicons
+                name="alert-circle-outline"
+                size={16}
+                color={Colors.destructive}
+              />
+              <Text style={erroStyles.texto}>{erro}</Text>
+            </View>
+          ) : null}
 
           <TouchableOpacity
             style={styles.button}
-
-            // Navega para onboarding por enquanto, depois vai para a tela principal
-            onPress={() => router.push('/(auth)/onboarding')}
+            onPress={handleLogin}
+            disabled={carregando}
           >
-            <Text style={styles.buttonText}>Entrar</Text>
+            {carregando ? (
+              <ActivityIndicator color={Colors.primaryForeground} />
+            ) : (
+              <Text style={styles.buttonText}>Entrar</Text>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
+const erroStyles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#FEE2E2",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginTop: 12,
+  },
+  texto: {
+    color: Colors.destructive,
+    fontSize: 13,
+    flex: 1,
+  },
+});

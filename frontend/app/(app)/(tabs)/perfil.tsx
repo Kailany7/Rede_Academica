@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import PostCard from '../../../components/PostCard'
 import { ExperienceCard } from '../../../components/cardExperiencia'
-import { posts as MOCK_POSTS } from '../../../data/posts'
+import { usePosts } from '../../../contexts/postContext'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -76,34 +76,10 @@ function InfoRow({ icon, label, value }: InfoRowProps) {
 export default function PerfilScreen() {
   const [user] = useState<UserProfile>(MOCK_USER);
   const [connected, setConnected] = useState(false);
-  const [posts, setPosts] = useState(
-
-    MOCK_POSTS.filter(
-      (post) => post.author === user.name
-    )
-
-  )
-
-
+  const { posts, toggleLike, addComment } = usePosts();
+  const userPosts = posts.filter((post) => post.author === user.name);
 
   const router = useRouter();
-  const handleLike = (id: string) => {
-
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === id
-          ? {
-            ...post,
-            liked: !post.liked,
-            likes: post.liked
-              ? post.likes - 1
-              : post.likes + 1
-          }
-          : post
-      )
-    );
-
-  };
 
   // HABILIDADES
   const [skills, setSkills] = useState([
@@ -365,19 +341,20 @@ export default function PerfilScreen() {
           <View style={styles.postsContainer}>
             <Text style={styles.postsTitle}>Publicações</Text>
 
-            {posts.map((post) => (
+            {userPosts.map((post) => (
               <PostCard
                 key={post.id}
                 id={post.id}
                 author={post.author}
-                course={post.course}
+                course={post.authorCourse}
                 content={post.content}
                 timestamp={post.timestamp}
                 likes={post.likes}
                 comments={post.comments}
-                liked={post.liked}
-                avatarColor={post.avatarColor}
-                onLike={handleLike}
+                liked={post.isLiked}
+                avatarColor={post.authorAvatar}
+                onLike={toggleLike}
+                onComment={addComment}
               />
             ))}
           </View>

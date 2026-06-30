@@ -13,7 +13,7 @@ export default function FloatingChat() {
   return (
     <TouchableOpacity
       style={styles.floatingButton}
-      onPress={() => router.push("/chat")}
+      onPress={() => router.push("/(app)/chat")}
     >
 
       <Ionicons
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
 
     position: "absolute",
 
-    bottom: 90,
+    bottom: 150,
     right: 20,
 
     width: 60,
