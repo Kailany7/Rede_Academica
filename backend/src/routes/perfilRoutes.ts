@@ -1,7 +1,6 @@
 import { Router } from "express";
 import * as perfilController from "../controllers/perfilController";
 import { autenticar } from "../middlewares/authMiddleware";
-
 const router = Router();
 
 router.use(autenticar);
