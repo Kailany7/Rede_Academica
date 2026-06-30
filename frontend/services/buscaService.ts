@@ -12,7 +12,15 @@ export interface SearchResult {
   semester?: string;
 }
 
-// Formato que vem do backend para grupos
+interface UsuarioApi {
+  _id: string;
+  nome: string;
+  curso: string;
+  semestre: string;
+  bio: string;
+  avatarColor: string;
+}
+
 interface GrupoApi {
   _id: string;
   nome: string;
@@ -21,7 +29,6 @@ interface GrupoApi {
   dataCriacao: string;
 }
 
-// Formato que vem do backend para publicações
 interface PublicacaoApi {
   _id: string;
   autor: string;
@@ -33,14 +40,12 @@ interface PublicacaoApi {
   data: string;
 }
 
-// Formato da resposta da rota GET /busca
 interface BuscaResponse {
-  usuarios: [];
+  usuarios: UsuarioApi[];
   publicacoes: PublicacaoApi[];
   grupos: GrupoApi[];
 }
 
-// Busca no backend pelo termo digitado
 export async function buscarConteudos(termo: string): Promise<SearchResult[]> {
   const response = await api.get<BuscaResponse>("/busca", {
     params: {
@@ -48,6 +53,15 @@ export async function buscarConteudos(termo: string): Promise<SearchResult[]> {
     },
   });
 
+  const usuariosFormatados: SearchResult[] = response.data.usuarios.map((usuario) => ({
+    id: usuario._id,
+    type: "user",
+    title: usuario.nome,
+    subtitle: `${usuario.curso || "Curso não informado"} • ${usuario.semestre || "Semestre não informado"}`,
+    avatarColor: usuario.avatarColor || "#1B4F8A",
+    course: usuario.curso,
+    semester: usuario.semestre,
+  }));
 
   const gruposFormatados: SearchResult[] = response.data.grupos.map((grupo) => ({
     id: grupo._id,
@@ -57,7 +71,6 @@ export async function buscarConteudos(termo: string): Promise<SearchResult[]> {
     avatarColor: "#0A4A7A",
   }));
 
-  
   const publicacoesFormatadas: SearchResult[] = response.data.publicacoes.map(
     (publicacao) => ({
       id: publicacao._id,
@@ -69,6 +82,9 @@ export async function buscarConteudos(termo: string): Promise<SearchResult[]> {
     })
   );
 
-  
-  return [...gruposFormatados, ...publicacoesFormatadas];
+  return [
+    ...usuariosFormatados,
+    ...gruposFormatados,
+    ...publicacoesFormatadas,
+  ];
 }
