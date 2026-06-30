@@ -4,23 +4,23 @@ import Comentario from "../models/Comentario";
 
 export const criarPublicacao = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { autor, autorCurso, avatarColor, conteudo } = req.body;
+    const { conteudo } = req.body;
+    const autorId = (req as any).userId;
 
-    if (!autor?.trim() || !conteudo?.trim()) {
-      res.status(400).json({ message: "Autor e conteúdo são obrigatórios." });
+    if (!conteudo?.trim()) {
+      res.status(400).json({ message: "Conteúdo é obrigatório." });
       return;
     }
 
     const novaPublicacao = await Publicacao.create({
-      autor: autor.trim(),
-      autorCurso: autorCurso?.trim() || "",
-      avatarColor: avatarColor || "#1B4F8A",
+      autor: autorId,
       conteudo: conteudo.trim(),
-      curtidas: 0,
-      comentarios: [],
     });
 
-    res.status(201).json(novaPublicacao);
+    const populada = await Publicacao.findById(novaPublicacao._id)
+      .populate("autor", "nome email curso avatarColor");
+
+    res.status(201).json(populada);
   } catch (error) {
     res.status(500).json({ message: "Erro ao criar publicação.", error });
   }
@@ -28,13 +28,26 @@ export const criarPublicacao = async (req: Request, res: Response): Promise<void
 
 export const listarPublicacoes = async (req: Request, res: Response): Promise<void> => {
   try {
+    const usuarioId = (req as any).userId;
+
     const publicacoes = await Publicacao.find()
+      .populate("autor", "nome email curso avatarColor")
       .populate({
         path: "comentarios",
+        populate: { path: "autor", select: "nome email avatarColor" },
       })
       .sort({ data: -1 });
 
-    res.status(200).json(publicacoes);
+    const resultado = publicacoes.map((pub) => {
+      const pubObj = pub.toObject();
+      return {
+        ...pubObj,
+        curtidas: pub.curtidoPor.length,
+        curtido: pub.curtidoPor.some((id) => id.toString() === usuarioId),
+      };
+    });
+
+    res.status(200).json(resultado);
   } catch (error) {
     res.status(500).json({ message: "Erro ao listar publicações.", error });
   }
@@ -43,19 +56,38 @@ export const listarPublicacoes = async (req: Request, res: Response): Promise<vo
 export const curtirPublicacao = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+    const usuarioId = (req as any).userId;
 
-    const publicacao = await Publicacao.findByIdAndUpdate(
-      id,
-      { $inc: { curtidas: 1 } },
-      { new: true }
-    );
-
+    const publicacao = await Publicacao.findById(id);
     if (!publicacao) {
       res.status(404).json({ message: "Publicação não encontrada." });
       return;
     }
 
-    res.status(200).json(publicacao);
+    const index = publicacao.curtidoPor.findIndex(
+      (idStr) => idStr.toString() === usuarioId
+    );
+
+    if (index === -1) {
+      publicacao.curtidoPor.push(usuarioId);
+    } else {
+      publicacao.curtidoPor.splice(index, 1);
+    }
+
+    await publicacao.save();
+
+    const populada = await Publicacao.findById(publicacao._id)
+      .populate("autor", "nome email curso avatarColor")
+      .populate({
+        path: "comentarios",
+        populate: { path: "autor", select: "nome email avatarColor" },
+      });
+
+    res.status(200).json({
+      ...populada!.toObject(),
+      curtidas: populada!.curtidoPor.length,
+      curtido: populada!.curtidoPor.some((id) => id.toString() === usuarioId),
+    });
   } catch (error) {
     res.status(500).json({ message: "Erro ao curtir publicação.", error });
   }
@@ -64,10 +96,11 @@ export const curtirPublicacao = async (req: Request, res: Response): Promise<voi
 export const comentarPublicacao = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { autor, autorCurso, avatarColor, conteudo } = req.body;
+    const { conteudo } = req.body;
+    const autorId = (req as any).userId;
 
-    if (!autor?.trim() || !conteudo?.trim()) {
-      res.status(400).json({ message: "Autor e conteúdo são obrigatórios." });
+    if (!conteudo?.trim()) {
+      res.status(400).json({ message: "Conteúdo é obrigatório." });
       return;
     }
 
@@ -78,9 +111,7 @@ export const comentarPublicacao = async (req: Request, res: Response): Promise<v
     }
 
     const novoComentario = await Comentario.create({
-      autor: autor.trim(),
-      autorCurso: autorCurso?.trim() || "",
-      avatarColor: avatarColor || "#1B4F8A",
+      autor: autorId,
       publicacao: id,
       conteudo: conteudo.trim(),
     });
@@ -88,7 +119,10 @@ export const comentarPublicacao = async (req: Request, res: Response): Promise<v
     publicacao.comentarios.push(novoComentario._id);
     await publicacao.save();
 
-    res.status(201).json(novoComentario);
+    const comentarioPopulado = await Comentario.findById(novoComentario._id)
+      .populate("autor", "nome email avatarColor");
+
+    res.status(201).json(comentarioPopulado);
   } catch (error) {
     res.status(500).json({ message: "Erro ao comentar na publicação.", error });
   }

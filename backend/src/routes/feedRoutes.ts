@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { autenticar } from "../middlewares/authMiddleware";
 import {
   criarPublicacao,
   listarPublicacoes,
@@ -8,9 +9,9 @@ import {
 
 const router = Router();
 
-router.post("/", criarPublicacao);
-router.get("/", listarPublicacoes);
-router.post("/:id/curtir", curtirPublicacao);
-router.post("/:id/comentar", comentarPublicacao);
+router.post("/", autenticar, criarPublicacao);
+router.get("/", autenticar, listarPublicacoes);
+router.post("/:id/curtir", autenticar, curtirPublicacao);
+router.post("/:id/comentar", autenticar, comentarPublicacao);
 
 export default router;

@@ -1,37 +1,28 @@
 import { api } from "./api";
 
-export interface PublicacaoApi {
+export interface AutorInfo {
   _id: string;
-  autor: string;
-  autorCurso: string;
+  nome: string;
+  email: string;
+  curso: string;
   avatarColor: string;
-  conteudo: string;
-  curtidas: number;
-  comentarios: ComentarioApi[];
-  data: string;
 }
 
 export interface ComentarioApi {
   _id: string;
-  autor: string;
-  autorCurso: string;
-  avatarColor: string;
+  autor: AutorInfo;
   conteudo: string;
   data: string;
 }
 
-export interface CriarPublicacaoData {
-  autor: string;
-  autorCurso?: string;
-  avatarColor?: string;
+export interface PublicacaoApi {
+  _id: string;
+  autor: AutorInfo;
   conteudo: string;
-}
-
-export interface ComentarData {
-  autor: string;
-  autorCurso?: string;
-  avatarColor?: string;
-  conteudo: string;
+  curtidas: number;
+  curtido: boolean;
+  comentarios: ComentarioApi[];
+  data: string;
 }
 
 export async function listarPublicacoes(): Promise<PublicacaoApi[]> {
@@ -39,8 +30,8 @@ export async function listarPublicacoes(): Promise<PublicacaoApi[]> {
   return response.data;
 }
 
-export async function criarPublicacao(data: CriarPublicacaoData): Promise<PublicacaoApi> {
-  const response = await api.post<PublicacaoApi>("/feed", data);
+export async function criarPublicacao(conteudo: string): Promise<PublicacaoApi> {
+  const response = await api.post<PublicacaoApi>("/feed", { conteudo });
   return response.data;
 }
 
@@ -49,7 +40,12 @@ export async function curtirPublicacao(id: string): Promise<PublicacaoApi> {
   return response.data;
 }
 
-export async function comentarPublicacao(id: string, data: ComentarData): Promise<ComentarioApi> {
-  const response = await api.post<ComentarioApi>(`/feed/${id}/comentar`, data);
+export async function comentarPublicacao(
+  id: string,
+  conteudo: string
+): Promise<ComentarioApi> {
+  const response = await api.post<ComentarioApi>(`/feed/${id}/comentar`, {
+    conteudo,
+  });
   return response.data;
 }
