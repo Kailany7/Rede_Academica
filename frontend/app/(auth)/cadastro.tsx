@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from "react";
 import {
   View,
   Text,
@@ -6,63 +6,101 @@ import {
   TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
-  Platform
-} from 'react-native'
-import { useRouter } from 'expo-router'
-import { Ionicons } from '@expo/vector-icons'
-import { widthPercentageToDP as wp } from 'react-native-responsive-screen'
-import Colors from '../../constants/Colors'
-import styles from './cadastroStyles'
+  Platform,
+  ActivityIndicator,
+  StyleSheet,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { widthPercentageToDP as wp } from "react-native-responsive-screen";
+import Colors from "../../constants/Colors";
+import styles from "./cadastroStyles";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface FormData {
-  nome: string
-  email: string
-  senha: string
-  curso: string
-  bio: string
+  nome: string;
+  email: string;
+  senha: string;
+  curso: string;
+  bio: string;
 }
 
 export default function CadastroScreen() {
-  const router = useRouter()
-
+  const router = useRouter();
+  const { cadastrar } = useAuth();
   const [formData, setFormData] = useState<FormData>({
-    nome: '',
-    email: '',
-    senha: '',
-    curso: '',
-    bio: ''
-  })
+    nome: "",
+    email: "",
+    senha: "",
+    curso: "",
+    bio: "",
+  });
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
 
-  const handleChange = (field: keyof FormData, value: string): void => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+  const handleChange = (field: keyof FormData, value: string) => {
+    setErro("");
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
-  }
+  const handleCadastro = async () => {
+    setErro("");
+
+    if (
+      !formData.nome.trim() ||
+      !formData.email.trim() ||
+      !formData.senha.trim()
+    ) {
+      setErro("Nome, email e senha são obrigatórios.");
+      return;
+    }
+    if (formData.senha.length < 6) {
+      setErro("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      await cadastrar(formData);
+      router.replace("/(auth)/onboarding");
+    } catch (error: any) {
+      const mensagem =
+        error?.response?.data?.message ||
+        "Erro ao criar conta. Tente novamente.";
+      setErro(mensagem);
+    } finally {
+      setCarregando(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      // no iOS o comportamento é diferente do Android
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Topo com ícone e título */}
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <Ionicons name="school" size={wp('10%')} color={Colors.primaryForeground} />
+            <Ionicons
+              name="school"
+              size={wp("10%")}
+              color={Colors.primaryForeground}
+            />
           </View>
-          <Text style={styles.title}>Rede Social{'\n'}Acadêmica</Text>
-          <Text style={styles.subtitle}>Conecte-se com estudantes e professores</Text>
+          <Text style={styles.title}>Rede Social{"\n"}Acadêmica</Text>
+          <Text style={styles.subtitle}>
+            Conecte-se com estudantes e professores
+          </Text>
         </View>
 
-      
         <View style={styles.card}>
           <View style={styles.toggleContainer}>
             <TouchableOpacity
               style={styles.toggleButtonInactive}
-              onPress={() => router.push('/(auth)/login')}
+              onPress={() => router.push("/(auth)/login")}
             >
               <Text style={styles.toggleTextInactive}>Login</Text>
             </TouchableOpacity>
@@ -71,80 +109,101 @@ export default function CadastroScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Campo Nome */}
           <Text style={styles.label}>Nome completo</Text>
           <TextInput
             style={styles.input}
             placeholder="Digite seu nome completo"
             placeholderTextColor={Colors.mutedForeground}
             value={formData.nome}
-            onChangeText={(text) => handleChange('nome', text)}
-            // handleChange atualiza só o campo 'nome'
+            onChangeText={(t) => handleChange("nome", t)}
             autoCapitalize="words"
-            // words: capitaliza cada palavra do nome
           />
 
-          {/* Campo Email */}
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
             placeholder="Digite seu email institucional"
             placeholderTextColor={Colors.mutedForeground}
             value={formData.email}
-            onChangeText={(text) => handleChange('email', text)}
+            onChangeText={(t) => handleChange("email", t)}
             keyboardType="email-address"
             autoCapitalize="none"
-            // none: não capitaliza email
           />
 
-          {/* Campo Senha */}
           <Text style={styles.label}>Senha</Text>
           <TextInput
             style={styles.input}
-            placeholder="Digite sua senha"
+            placeholder="Mínimo 6 caracteres"
             placeholderTextColor={Colors.mutedForeground}
             value={formData.senha}
-            onChangeText={(text) => handleChange('senha', text)}
+            onChangeText={(t) => handleChange("senha", t)}
             secureTextEntry
-            // secureTextEntry: esconde o texto da senha
           />
 
-          {/* Campo Curso */}
           <Text style={styles.label}>Curso</Text>
           <TextInput
             style={styles.input}
-            placeholder="Digite seu curso (ex: Sistema de Informação)"
+            placeholder="Ex: Sistemas de Informação"
             placeholderTextColor={Colors.mutedForeground}
             value={formData.curso}
-            onChangeText={(text) => handleChange('curso', text)}
+            onChangeText={(t) => handleChange("curso", t)}
             autoCapitalize="words"
           />
 
-          {/* Campo Bio */}
           <Text style={styles.label}>Bio</Text>
           <TextInput
             style={styles.inputBio}
             placeholder="Fale um pouco sobre você e seus interesses acadêmicos..."
             placeholderTextColor={Colors.mutedForeground}
             value={formData.bio}
-            onChangeText={(text) => handleChange('bio', text)}
+            onChangeText={(t) => handleChange("bio", t)}
             multiline
-            // multiline: permite múltiplas linhas
             numberOfLines={4}
             textAlignVertical="top"
-
           />
 
-          {/* Botão Criar conta */}
+          {erro ? (
+            <View style={erroStyles.container}>
+              <Ionicons
+                name="alert-circle-outline"
+                size={16}
+                color={Colors.destructive}
+              />
+              <Text style={erroStyles.texto}>{erro}</Text>
+            </View>
+          ) : null}
+
           <TouchableOpacity
             style={styles.button}
-            onPress={() => router.push('/(app)/(tabs)/feed')}
+            onPress={handleCadastro}
+            disabled={carregando}
           >
-            <Text style={styles.buttonText}>Criar conta</Text>
+            {carregando ? (
+              <ActivityIndicator color={Colors.primaryForeground} />
+            ) : (
+              <Text style={styles.buttonText}>Criar conta</Text>
+            )}
           </TouchableOpacity>
-
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
-  )
+  );
 }
+
+const erroStyles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#FEE2E2",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginTop: 12,
+  },
+  texto: {
+    color: Colors.destructive,
+    fontSize: 13,
+    flex: 1,
+  },
+});

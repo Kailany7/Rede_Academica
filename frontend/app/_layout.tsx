@@ -1,29 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { View, ActivityIndicator } from "react-native";
-
-// ─── Simulação de estado de autenticação ──────────────────────────────────────
-// Quando o back-end estiver pronto, substitua este hook pela lógica real
-// (ex: checar token no AsyncStorage ou contexto global).
-
-function useAuth() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    // Simula checar token salvo
-    const checkAuth = async () => {
-      await new Promise((res) => setTimeout(res, 500));
-      setIsAuthenticated(false); // troque para true para pular login
-      setIsLoading(false);
-    };
-    checkAuth();
-  }, []);
-
-  return { isLoading, isAuthenticated };
-}
-
-// ─── Guard de rotas ───────────────────────────────────────────────────────────
+import { PostsProvider } from "../contexts/postContext";
+import { AuthProvider, useAuth } from "../contexts/AuthContext";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isLoading, isAuthenticated } = useAuth();
@@ -35,11 +14,13 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
     const inAuthGroup = segments[0] === "(auth)";
 
-    //  if (!isAuthenticated && !inAuthGroup) {
-    // router.replace("/(auth)/login");
-    //} else if (isAuthenticated && inAuthGroup) {
-    //router.replace("/(app)/(tabs)/feed");
-    // }
+    if (!isAuthenticated && !inAuthGroup) {
+      // Não logado e tentando acessar tela protegida → vai pro login
+      router.replace("/(auth)/login");
+    } else if (isAuthenticated && inAuthGroup) {
+      // Já logado e está na tela de login/cadastro → vai pro feed
+      router.replace("/(app)/(tabs)/feed");
+    }
   }, [isLoading, isAuthenticated, segments]);
 
   if (isLoading) {
@@ -60,15 +41,17 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// ─── Layout raiz ──────────────────────────────────────────────────────────────
-
 export default function RootLayout() {
   return (
-    <AuthGuard>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(app)" />
-      </Stack>
-    </AuthGuard>
+    <AuthProvider>
+      <PostsProvider>
+        <AuthGuard>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(app)" />
+          </Stack>
+        </AuthGuard>
+      </PostsProvider>
+    </AuthProvider>
   );
 }

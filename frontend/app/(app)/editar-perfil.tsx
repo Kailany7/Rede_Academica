@@ -19,6 +19,14 @@ interface FormData {
   curso: string
   semestre: string
   bio: string
+  experiences: Experience[]
+}
+
+interface Experience {
+  title: string
+  company: string
+  period: string
+  description: string
 }
 
 interface AvatarProps {
@@ -31,6 +39,26 @@ const MOCK_USER: FormData = {
   curso: 'Sistemas de Informação',
   semestre: '5º Semestre',
   bio: 'Estudante apaixonada por tecnologia e desenvolvimento mobile',
+  experiences: [
+    {
+      title: 'Desenvolvedor Front-End',
+      company: 'UNIFACISA · Estágio',
+      period: 'jan de 2025 · o momento',
+      description: 'Desenvolvimento de interfaces mobile com React Native, Expo Router e TypeScript. Criação de telas responsivas, integração de componentes reutilizáveis e versionamento com Git/GitHub.',
+    },
+    {
+      title: 'Monitor de Programação',
+      company: 'UNIFACISA · Meio período',
+      period: 'ago de 2024 · dez de 2024 · 5 meses',
+      description: 'Auxílio a alunos nas disciplinas de lógica de programação e estrutura de dados. Suporte em JavaScript, algoritmos e resolução de exercícios práticos.',
+    },
+    {
+      title: 'Desenvolvedor Back-End',
+      company: 'UNIFACISA · Estágio',
+      period: 'fev de 2024 · out de 2024 · 9 meses',
+      description: 'Participação no desenvolvimento de APIs REST utilizando Node.js, Express e MongoDB. Implementação de autenticação, integração com banco de dados e testes de rotas.',
+    }
+  ]
 }
 const AVATAR_COLOR: string = Colors.accent
 
@@ -58,6 +86,7 @@ export default function EditarPerfilScreen() {
     curso: MOCK_USER.curso,
     semestre: MOCK_USER.semestre,
     bio: MOCK_USER.bio,
+    experiences: MOCK_USER.experiences,
   })
   
   const [salvando, setSalvando] = useState<boolean>(false)
@@ -65,6 +94,25 @@ export default function EditarPerfilScreen() {
   const handleChange = (campo: keyof FormData, valor: string): void => {
     setFormData(prev => ({ ...prev, [campo]: valor }))
   }
+
+  const handleExperienceChange = (
+  index: number,
+  field: keyof Experience,
+  value: string
+): void => {
+
+  const updatedExperiences = [...formData.experiences]
+
+  updatedExperiences[index] = {
+    ...updatedExperiences[index],
+    [field]: value,
+  }
+
+  setFormData(prev => ({
+    ...prev,
+    experiences: updatedExperiences,
+  }))
+}
 
   const handleSalvar = (): void => {
     setSalvando(true)
@@ -77,36 +125,32 @@ export default function EditarPerfilScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-     
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-
         <View style={styles.banner}>
           <View style={styles.avatarWrapper}>
             <Avatar nome={formData.nome} cor={AVATAR_COLOR} />
           </View>
         </View>
-		
-        <View style={styles.card}>
 
+        <View style={styles.card}>
           {/* Botão Salvar */}
           <TouchableOpacity
             style={styles.button}
             onPress={handleSalvar}
             disabled={salvando}
-          
           >
             <Ionicons
-              name={salvando ? 'hourglass-outline' : 'save-outline'}
+              name={salvando ? "hourglass-outline" : "save-outline"}
               size={18}
               color={Colors.primaryForeground}
             />
             <Text style={styles.buttonText}>
-              {salvando ? 'Salvando...' : 'Salvar alterações'}
+              {salvando ? "Salvando..." : "Salvar alterações"}
               {/* muda o texto enquanto salva */}
             </Text>
           </TouchableOpacity>
@@ -116,7 +160,7 @@ export default function EditarPerfilScreen() {
           <TextInput
             style={styles.input}
             value={formData.nome}
-            onChangeText={(text) => handleChange('nome', text)}
+            onChangeText={(text) => handleChange("nome", text)}
             placeholder="Digite seu nome completo"
             placeholderTextColor={Colors.mutedForeground}
             autoCapitalize="words"
@@ -127,7 +171,7 @@ export default function EditarPerfilScreen() {
           <TextInput
             style={styles.input}
             value={formData.curso}
-            onChangeText={(text) => handleChange('curso', text)}
+            onChangeText={(text) => handleChange("curso", text)}
             placeholder="Digite seu curso"
             placeholderTextColor={Colors.mutedForeground}
             autoCapitalize="words"
@@ -138,7 +182,7 @@ export default function EditarPerfilScreen() {
           <TextInput
             style={styles.input}
             value={formData.semestre}
-            onChangeText={(text) => handleChange('semestre', text)}
+            onChangeText={(text) => handleChange("semestre", text)}
             placeholder="Ex: 5º Semestre"
             placeholderTextColor={Colors.mutedForeground}
           />
@@ -148,14 +192,79 @@ export default function EditarPerfilScreen() {
           <TextInput
             style={styles.inputBio}
             value={formData.bio}
-            onChangeText={(text) => handleChange('bio', text)}
+            onChangeText={(text) => handleChange("bio", text)}
             placeholder="Fale um pouco sobre você..."
             placeholderTextColor={Colors.mutedForeground}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
-            
           />
+
+          {/* Experiências */}
+          <Text style={styles.label}>Experiências</Text>
+
+          {formData.experiences.map((experience, index) => (
+            <View
+              key={index}
+              style={{
+                marginBottom: 20,
+                padding: 14,
+                borderRadius: 12,
+                backgroundColor: "#F7FAFD",
+              }}
+            >
+              <Text style={styles.label}>Cargo</Text>
+
+              <TextInput
+                style={styles.input}
+                value={experience.title}
+                onChangeText={(text) =>
+                  handleExperienceChange(index, "title", text)
+                }
+                placeholder="Ex: Desenvolvedor Front-End"
+                placeholderTextColor={Colors.mutedForeground}
+              />
+
+              <Text style={styles.label}>Empresa</Text>
+
+              <TextInput
+                style={styles.input}
+                value={experience.company}
+                onChangeText={(text) =>
+                  handleExperienceChange(index, "company", text)
+                }
+                placeholder="Ex: Empresa X"
+                placeholderTextColor={Colors.mutedForeground}
+              />
+
+              <Text style={styles.label}>Período</Text>
+
+              <TextInput
+                style={styles.input}
+                value={experience.period}
+                onChangeText={(text) =>
+                  handleExperienceChange(index, "period", text)
+                }
+                placeholder="Ex: jan de 2025 · o momento"
+                placeholderTextColor={Colors.mutedForeground}
+              />
+
+              <Text style={styles.label}>Descrição</Text>
+
+              <TextInput
+                style={styles.inputBio}
+                value={experience.description}
+                onChangeText={(text) =>
+                  handleExperienceChange(index, "description", text)
+                }
+                placeholder="Descreva suas atividades"
+                placeholderTextColor={Colors.mutedForeground}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+            </View>
+          ))}
 
           {/* Botão Cancelar */}
           <TouchableOpacity
@@ -165,9 +274,8 @@ export default function EditarPerfilScreen() {
           >
             <Text style={styles.buttonCancelText}>Cancelar</Text>
           </TouchableOpacity>
-
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
-  )
+  );
 }
