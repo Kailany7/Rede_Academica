@@ -208,6 +208,7 @@ export default function TabsLayout() {
   )
 }
 
+
 const styles = StyleSheet.create({
 
   // Container botão +
