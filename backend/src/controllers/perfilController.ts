@@ -4,7 +4,7 @@ import * as perfilService from "../services/perfilService";
 // Buscar meu perfil
 export const getMyPerfil = async (req: Request, res: Response) => {
   try {
-    const userId = String(req.user!.id);
+    const userId = String((req as any).userId);
 
     const perfil = await perfilService.getMyPerfil(userId);
 
@@ -34,7 +34,7 @@ export const getPerfilById = async (req: Request, res: Response) => {
 // Editar perfil
 export const updatePerfil = async (req: Request, res: Response) => {
   try {
-    const userId = String(req.user!.id);
+    const userId = String((req as any).userId);
 
     const data = req.body;
 
@@ -51,7 +51,7 @@ export const updatePerfil = async (req: Request, res: Response) => {
 // Listar conexões
 export const getConnections = async (req: Request, res: Response) => {
   try {
-    const userId = String(req.user!.id);
+    const userId = String((req as any).userId);
 
     const connections = await perfilService.getConnections(userId);
 
@@ -66,7 +66,7 @@ export const getConnections = async (req: Request, res: Response) => {
 // Listar solicitações recebidas
 export const getRequests = async (req: Request, res: Response) => {
   try {
-    const userId = String(req.user!.id);
+    const userId = String((req as any).userId);
 
     const requests = await perfilService.getRequests(userId);
 
@@ -81,7 +81,7 @@ export const getRequests = async (req: Request, res: Response) => {
 // Enviar solicitação de conexão
 export const sendRequest = async (req: Request, res: Response) => {
   try {
-    const userId = String(req.user!.id);
+    const userId = String((req as any).userId);
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     const response = await perfilService.sendRequest(userId, id);
@@ -97,7 +97,7 @@ export const sendRequest = async (req: Request, res: Response) => {
 // Aceitar solicitação
 export const acceptRequest = async (req: Request, res: Response) => {
   try {
-    const userId = String(req.user!.id);
+    const userId = String((req as any).userId);
     const id = String(req.params.id);
 
     const response = await perfilService.acceptRequest(userId, id);
@@ -113,7 +113,7 @@ export const acceptRequest = async (req: Request, res: Response) => {
 // Recusar solicitação
 export const rejectRequest = async (req: Request, res: Response) => {
   try {
-    const userId = String(req.user!.id);
+    const userId = String((req as any).userId);
     const id = String(req.params.id);
 
     const response = await perfilService.rejectRequest(userId, id);

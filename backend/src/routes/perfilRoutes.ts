@@ -1,10 +1,9 @@
 import { Router } from "express";
 import * as perfilController from "../controllers/perfilController";
-import { authMiddleware } from "../middlewares/authMiddleware";
-
+import { autenticar } from "../middlewares/authMiddleware";
 const router = Router();
 
-router.use(authMiddleware);
+router.use(autenticar);
 
 router.get("/", perfilController.getMyPerfil);
 router.get("/conexoes", perfilController.getConnections);
