@@ -24,7 +24,7 @@ export const autenticar = (
     };
 
     req.user = { id: decoded.id, email: decoded.email };
-    (req as any).userId = decoded.id; // mantido por compatibilidade com authController
+    (req as any).userId = decoded.id; 
 
     next();
   } catch (error) {
