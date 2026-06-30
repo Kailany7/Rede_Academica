@@ -12,16 +12,12 @@ export const cadastrar = async (req: Request, res: Response): Promise<void> => {
     const { nome, email, senha, curso, semestre, bio } = req.body;
 
     if (!nome?.trim() || !email?.trim() || !senha?.trim()) {
-      res
-        .status(400)
-        .json({ message: "Nome, email e senha são obrigatórios." });
+      res.status(400).json({ message: "Nome, email e senha são obrigatórios." });
       return;
     }
 
     if (senha.length < 6) {
-      res
-        .status(400)
-        .json({ message: "A senha deve ter pelo menos 6 caracteres." });
+      res.status(400).json({ message: "A senha deve ter pelo menos 6 caracteres." });
       return;
     }
 
@@ -81,8 +77,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const usuario = await Usuario.findOne({
       email: email.trim().toLowerCase(),
     });
-    console.log("USUARIO ENCONTRADO:", usuario);
-    console.log("JWT_SECRET:", JWT_SECRET);
+
     if (!usuario) {
       res.status(401).json({ message: "Email ou senha incorretos." });
       return;

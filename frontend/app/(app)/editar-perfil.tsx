@@ -1,127 +1,93 @@
-
-import { useState } from 'react'
+import { useState, useEffect } from "react";
 import {
-  View,           
-  Text,           
-  TextInput,      
-  TouchableOpacity, 
-  ScrollView,    
-  KeyboardAvoidingView, 
-  Platform,       
-} from 'react-native'
-import { Ionicons } from '@expo/vector-icons' 
-import { useRouter } from 'expo-router'        
-import Colors from '../../constants/Colors'
-import styles from './styles/editarPerfilStyles' 
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import Colors from "../../constants/Colors";
+import styles from "./styles/editarPerfilStyles";
+import { getMyPerfil, updatePerfil } from "../../services/perfilApi";
 
 interface FormData {
-  nome: string
-  curso: string
-  semestre: string
-  bio: string
-  experiences: Experience[]
+  nome: string;
+  curso: string;
+  semestre: string;
+  bio: string;
+  experiences: Experience[];
 }
 
 interface Experience {
-  title: string
-  company: string
-  period: string
-  description: string
-}
-
-interface AvatarProps {
-  nome: string  // nome do usuário para gerar as iniciais
-  cor: string   // cor de fundo do avatar
-}
-
-const MOCK_USER: FormData = {
-  nome: 'Carla Silva',
-  curso: 'Sistemas de Informação',
-  semestre: '5º Semestre',
-  bio: 'Estudante apaixonada por tecnologia e desenvolvimento mobile',
-  experiences: [
-    {
-      title: 'Desenvolvedor Front-End',
-      company: 'UNIFACISA · Estágio',
-      period: 'jan de 2025 · o momento',
-      description: 'Desenvolvimento de interfaces mobile com React Native, Expo Router e TypeScript. Criação de telas responsivas, integração de componentes reutilizáveis e versionamento com Git/GitHub.',
-    },
-    {
-      title: 'Monitor de Programação',
-      company: 'UNIFACISA · Meio período',
-      period: 'ago de 2024 · dez de 2024 · 5 meses',
-      description: 'Auxílio a alunos nas disciplinas de lógica de programação e estrutura de dados. Suporte em JavaScript, algoritmos e resolução de exercícios práticos.',
-    },
-    {
-      title: 'Desenvolvedor Back-End',
-      company: 'UNIFACISA · Estágio',
-      period: 'fev de 2024 · out de 2024 · 9 meses',
-      description: 'Participação no desenvolvimento de APIs REST utilizando Node.js, Express e MongoDB. Implementação de autenticação, integração com banco de dados e testes de rotas.',
-    }
-  ]
-}
-const AVATAR_COLOR: string = Colors.accent
-
-function Avatar({ nome, cor }: AvatarProps) {
-  // Gerar iniciais a partir do nome
-  const iniciais: string = nome
-    .split(' ')           
-    .map((p: string) => p[0]) 
-    .slice(0, 2)          
-    .join('')             
-    .toUpperCase()        
-
-  return (
-    <View style={[styles.avatar, { backgroundColor: cor }]}>
-      <Text style={styles.avatarText}>{iniciais}</Text>
-    </View>
-  )
+  title: string;
+  company: string;
+  period: string;
+  description: string;
 }
 
 export default function EditarPerfilScreen() {
-  const router = useRouter()
+  const router = useRouter();
 
   const [formData, setFormData] = useState<FormData>({
-    nome: MOCK_USER.nome,
-    curso: MOCK_USER.curso,
-    semestre: MOCK_USER.semestre,
-    bio: MOCK_USER.bio,
-    experiences: MOCK_USER.experiences,
-  })
-  
-  const [salvando, setSalvando] = useState<boolean>(false)
+    nome: "",
+    curso: "",
+    semestre: "",
+    bio: "",
+    experiences: [],
+  });
+  const [salvando, setSalvando] = useState<boolean>(false);
+
+  // Carregar perfil atual do backend
+  useEffect(() => {
+    getMyPerfil()
+      .then((data) => {
+        setFormData({
+          nome: data.name,
+          curso: data.course,
+          semestre: data.semester,
+          bio: data.bio,
+          experiences: data.experiences || [],
+        });
+      })
+      .catch((err) => console.error("Erro ao carregar perfil:", err));
+  }, []);
 
   const handleChange = (campo: keyof FormData, valor: string): void => {
-    setFormData(prev => ({ ...prev, [campo]: valor }))
-  }
+    setFormData((prev) => ({ ...prev, [campo]: valor }));
+  };
 
   const handleExperienceChange = (
-  index: number,
-  field: keyof Experience,
-  value: string
-): void => {
+    index: number,
+    field: keyof Experience,
+    value: string
+  ): void => {
+    const updatedExperiences = [...formData.experiences];
+    updatedExperiences[index] = {
+      ...updatedExperiences[index],
+      [field]: value,
+    };
+    setFormData((prev) => ({
+      ...prev,
+      experiences: updatedExperiences,
+    }));
+  };
 
-  const updatedExperiences = [...formData.experiences]
+  const handleSalvar = async (): Promise<void> => {
+    setSalvando(true);
+    try {
+      await updatePerfil(formData);
+      router.back();
+    } catch (err) {
+      console.error("Erro ao salvar perfil:", err);
+    } finally {
+      setSalvando(false);
+    }
+  };
 
-  updatedExperiences[index] = {
-    ...updatedExperiences[index],
-    [field]: value,
-  }
-
-  setFormData(prev => ({
-    ...prev,
-    experiences: updatedExperiences,
-  }))
-}
-
-  const handleSalvar = (): void => {
-    setSalvando(true)
-    setTimeout(() => {
-      setSalvando(false)
-      router.back() 
-    }, 1000)
-  }
- 
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -131,12 +97,6 @@ export default function EditarPerfilScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.banner}>
-          <View style={styles.avatarWrapper}>
-            <Avatar nome={formData.nome} cor={AVATAR_COLOR} />
-          </View>
-        </View>
-
         <View style={styles.card}>
           {/* Botão Salvar */}
           <TouchableOpacity
@@ -151,7 +111,6 @@ export default function EditarPerfilScreen() {
             />
             <Text style={styles.buttonText}>
               {salvando ? "Salvando..." : "Salvar alterações"}
-              {/* muda o texto enquanto salva */}
             </Text>
           </TouchableOpacity>
 
@@ -163,7 +122,6 @@ export default function EditarPerfilScreen() {
             onChangeText={(text) => handleChange("nome", text)}
             placeholder="Digite seu nome completo"
             placeholderTextColor={Colors.mutedForeground}
-            autoCapitalize="words"
           />
 
           {/* Campo Curso */}
@@ -174,7 +132,6 @@ export default function EditarPerfilScreen() {
             onChangeText={(text) => handleChange("curso", text)}
             placeholder="Digite seu curso"
             placeholderTextColor={Colors.mutedForeground}
-            autoCapitalize="words"
           />
 
           {/* Campo Semestre */}
@@ -202,7 +159,6 @@ export default function EditarPerfilScreen() {
 
           {/* Experiências */}
           <Text style={styles.label}>Experiências</Text>
-
           {formData.experiences.map((experience, index) => (
             <View
               key={index}
@@ -214,7 +170,6 @@ export default function EditarPerfilScreen() {
               }}
             >
               <Text style={styles.label}>Cargo</Text>
-
               <TextInput
                 style={styles.input}
                 value={experience.title}
@@ -226,7 +181,6 @@ export default function EditarPerfilScreen() {
               />
 
               <Text style={styles.label}>Empresa</Text>
-
               <TextInput
                 style={styles.input}
                 value={experience.company}
@@ -238,7 +192,6 @@ export default function EditarPerfilScreen() {
               />
 
               <Text style={styles.label}>Período</Text>
-
               <TextInput
                 style={styles.input}
                 value={experience.period}
@@ -250,7 +203,6 @@ export default function EditarPerfilScreen() {
               />
 
               <Text style={styles.label}>Descrição</Text>
-
               <TextInput
                 style={styles.inputBio}
                 value={experience.description}
@@ -270,7 +222,6 @@ export default function EditarPerfilScreen() {
           <TouchableOpacity
             style={styles.buttonCancel}
             onPress={() => router.back()}
-            // router.back() volta para a tela anterior
           >
             <Text style={styles.buttonCancelText}>Cancelar</Text>
           </TouchableOpacity>

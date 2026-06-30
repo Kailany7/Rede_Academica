@@ -14,20 +14,17 @@ export const getPerfilById = async (id: string) => {
 
 // editar perfil 
 export const updatePerfil = async (userId: string, data: any) => {
-  const updated = await User.findByIdAndUpdate(
+  return await User.findByIdAndUpdate(
     userId,
     {
       nome: data.nome,
-      biografia: data.biografia,
       curso: data.curso,
-      instituicao: data.instituicao,
-      fotoPerfil: data.fotoPerfil,
-      habilidades: data.habilidades,
+      semestre: data.semestre,
+      bio: data.bio,
+      avatarColor: data.avatarColor,
     },
     { new: true }
   ).select("-senha");
-
-  return updated;
 };
 
 // listar conexões

@@ -22,10 +22,12 @@ export const autenticar = (
       id: string;
       email: string;
     };
+
     (req as any).userId = decoded.id;
     (req as any).userEmail = decoded.email;
+
     next();
-  } catch {
+  } catch (error) {
     res.status(401).json({ message: "Token inválido ou expirado." });
   }
 };
