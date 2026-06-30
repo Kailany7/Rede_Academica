@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   View,
@@ -11,54 +11,107 @@ import {
   Platform
 } from "react-native";
 
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+
 import ChatBubble from "../../../components/ChatBubble";
 
+import { useAuth } from "../../../contexts/AuthContext";
 
-const initialMessages = [
-  {
-    id: "1",
-    text: "Oi, tudo bem?",
-    sender: "other" as "other"
-  },
-  {
-    id: "2",
-    text: "Tudo sim e você?",
-    sender: "me" as "me"
-  }
-];
+import {
+  buscarMensagens,
+  enviarMensagem
+} from "../../../services/chatService";
+
 
 export default function ConversationScreen() {
-  const [messages, setMessages] =
-    useState(initialMessages);
+
+  const router = useRouter();
+
+  const { id } = useLocalSearchParams();
+
+  const { usuario } = useAuth();
+
+
+  const [messages, setMessages] = useState<any[]>([]);
 
   const [input, setInput] = useState("");
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
 
-    setMessages((prev) => [
+
+  useEffect(() => {
+
+
+    async function carregar() {
+
+      if (!id) return;
+
+
+      const dados = await buscarMensagens(
+        id as string
+      );
+
+
+      setMessages(
+        dados.map((msg) => ({
+          id: msg._id,
+          text: msg.conteudo,
+          sender:
+            msg.remetente === usuario?.id
+              ? "me"
+              : "other"
+        }))
+      );
+
+    }
+
+
+    carregar();
+
+
+  }, [id]);
+
+
+
+
+
+  const sendMessage = async () => {
+
+    if (!input.trim() || !id) return;
+
+
+    await enviarMensagem(
+      id as string,
+      input
+    );
+
+
+    setMessages((prev)=>[
       ...prev,
       {
         id: Date.now().toString(),
         text: input,
-        sender: "me" as "me"
+        sender:"me"
       }
     ]);
 
+
     setInput("");
+
   };
-  const router = useRouter();
+
+
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={
         Platform.OS === "ios"
-          ? "padding"
-          : undefined
+        ? "padding"
+        : undefined
       }
     >
+
       <View style={styles.header}>
 
         <TouchableOpacity
@@ -74,20 +127,25 @@ export default function ConversationScreen() {
 
         </TouchableOpacity>
 
+
         <Text style={styles.headerTitle}>
           Conversa
         </Text>
 
       </View>
+
+
+
       <FlatList
         data={messages}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item)=>item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          padding: 16,
-          paddingBottom: 20
+          padding:16,
+          paddingBottom:20
         }}
-        renderItem={({ item }) => (
+
+        renderItem={({item})=>(
           <ChatBubble
             message={item.text}
             sender={item.sender}
@@ -95,7 +153,10 @@ export default function ConversationScreen() {
         )}
       />
 
+
+
       <View style={styles.inputArea}>
+
         <TextInput
           value={input}
           onChangeText={setInput}
@@ -104,16 +165,22 @@ export default function ConversationScreen() {
           style={styles.input}
         />
 
+
         <TouchableOpacity
           style={styles.sendButton}
           onPress={sendMessage}
-          activeOpacity={0.8}
         >
+
           <Text style={styles.sendText}>
             Enviar
           </Text>
+
         </TouchableOpacity>
+
+
       </View>
+
+
     </KeyboardAvoidingView>
   );
 }

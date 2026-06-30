@@ -9,21 +9,25 @@ import {
 import { useRouter } from "expo-router";
 
 import { Ionicons } from "@expo/vector-icons";
+import { useEffect, useState } from "react";
+//import { listarUsuarios, Usuario } from "../../../services/usuarioService";
+import { listarConversas, Conversa } from "../../../services/chatService";
 
-const conversations = [
-  {
-    id: "1",
-    name: "Maria",
-    lastMessage: "Oi, tudo bem?"
-  },
-  {
-    id: "2",
-    name: "João",
-    lastMessage: "Vamos estudar?"
-  }
-];
 
 export default function ChatScreen() {
+
+  console.log("ENTROU CHAT")
+
+  const [conversations, setConversations] = useState<Conversa[]>([]);
+
+
+  useEffect(() => {
+    async function carregar() {
+      const dados = await listarConversas();
+      setConversations(dados);
+    }
+    carregar();
+  }, []);
 
   const router = useRouter();
 
@@ -55,29 +59,29 @@ export default function ChatScreen() {
 
       <FlatList
         data={conversations}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.usuarioId}
         renderItem={({ item }) => (
 
           <TouchableOpacity
             style={styles.card}
             onPress={() =>
-              router.push(`/chat/${item.id}`)
+              router.push(`/chat/${item.usuarioId}`)
             }
           >
 
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
-                {item.name[0]}
+                {item.nome[0]}
               </Text>
             </View>
 
             <View>
               <Text style={styles.name}>
-                {item.name}
+                {item.nome}
               </Text>
 
               <Text style={styles.message}>
-                {item.lastMessage}
+                {item.bio}
               </Text>
             </View>
 
