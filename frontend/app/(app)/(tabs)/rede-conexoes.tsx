@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  getConnections,
+  getRequests,
+  getSuggestions,
+  sendRequest,
+  acceptRequest,
+  rejectRequest,
+  removeConnection,
+} from "../../../services/perfilApi";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -21,89 +30,6 @@ interface Connection {
   avatarColor: string;
   status: "connected" | "pending" | "suggestion";
 }
-
-// ─── Dados mockados ───────────────────────────────────────────────────────────
-
-const MOCK_CONNECTIONS: Connection[] = [
-  {
-    id: "1",
-    name: "Maria Santos",
-    initials: "MS",
-    course: "Engenharia de Software",
-    semester: "5º Semestre",
-    avatarColor: "#1B4F8A",
-    status: "connected",
-  },
-  {
-    id: "2",
-    name: "Carlos Oliveira",
-    initials: "CO",
-    course: "Sistemas de Informação",
-    semester: "3º Semestre",
-    avatarColor: "#2E7D8C",
-    status: "connected",
-  },
-  {
-    id: "3",
-    name: "Ana Paula",
-    initials: "AP",
-    course: "Ciência da Computação",
-    semester: "7º Semestre",
-    avatarColor: "#5B3FA6",
-    status: "connected",
-  },
-];
-
-const MOCK_PENDING: Connection[] = [
-  {
-    id: "4",
-    name: "Pedro Lima",
-    initials: "PL",
-    course: "Engenharia de Software",
-    semester: "4º Semestre",
-    avatarColor: "#C0392B",
-    status: "pending",
-  },
-  {
-    id: "5",
-    name: "Julia Ramos",
-    initials: "JR",
-    course: "Ciência da Computação",
-    semester: "6º Semestre",
-    avatarColor: "#1A7A4A",
-    status: "pending",
-  },
-];
-
-const MOCK_SUGGESTIONS: Connection[] = [
-  {
-    id: "6",
-    name: "Lucas Ferreira",
-    initials: "LF",
-    course: "Sistemas de Informação",
-    semester: "5º Semestre",
-    avatarColor: "#B7770D",
-    status: "suggestion",
-  },
-  {
-    id: "7",
-    name: "Beatriz Costa",
-    initials: "BC",
-    course: "Engenharia de Software",
-    semester: "3º Semestre",
-    avatarColor: "#7D3C98",
-    status: "suggestion",
-  },
-  {
-    id: "8",
-    name: "Rafael Mendes",
-    initials: "RM",
-    course: "Ciência da Computação",
-    semester: "8º Semestre",
-    avatarColor: "#2E4057",
-    status: "suggestion",
-  },
-];
 
 // ─── Abas ─────────────────────────────────────────────────────────────────────
 
@@ -207,30 +133,111 @@ function ConnectionCard({
 
 export default function RedeConexoesScreen() {
   const [activeTab, setActiveTab] = useState<Tab>("minhaRede");
-  const [connections, setConnections] =
-    useState<Connection[]>(MOCK_CONNECTIONS);
-  const [pending, setPending] = useState<Connection[]>(MOCK_PENDING);
-  const [suggestions] = useState<Connection[]>(MOCK_SUGGESTIONS);
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [pending, setPending] = useState<Connection[]>([]);
+  const [suggestions, setSuggestions] = useState<Connection[]>([]);
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
 
-  const handleRemove = (id: string) => {
+  const carregarDados = useCallback(async () => {
+    try {
+      const [conexoesRes, solicitacoesRes, sugestoesRes] = await Promise.all([
+        getConnections(),
+        getRequests(),
+        getSuggestions(),
+      ]);
+
+      setConnections(
+        conexoesRes.map((u) => ({
+          id: u._id,
+          name: u.nome,
+          initials: u.nome?.[0] || "?",
+          course: u.curso,
+          semester: u.semestre,
+          avatarColor: u.avatarColor || "#1B4F8A",
+          status: "connected" as const,
+        }))
+      );
+
+      setPending(
+        solicitacoesRes.map((s) => ({
+          id: s._id,
+          name: s.remetente?.nome,
+          initials: s.remetente?.nome?.[0] || "?",
+          course: s.remetente?.curso,
+          semester: s.remetente?.semestre,
+          avatarColor: s.remetente?.avatarColor || "#1B4F8A",
+          status: "pending" as const,
+        }))
+      );
+
+      setSuggestions(
+        sugestoesRes.map((s) => ({
+          id: s._id,
+          name: s.nome,
+          initials: s.nome?.[0] || "?",
+          course: s.curso,
+          semester: s.semestre,
+          avatarColor: s.avatarColor || "#1B4F8A",
+          status: "suggestion" as const,
+        }))
+      );
+
+      setSentRequests(
+        new Set(
+          sugestoesRes.filter((s) => s.solicitacaoEnviada).map((s) => s._id)
+        )
+      );
+    } catch (err) {
+      console.error("Erro ao carregar rede de conexões:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    carregarDados();
+  }, [carregarDados]);
+
+  const handleRemove = async (id: string) => {
     setConnections((prev) => prev.filter((c) => c.id !== id));
+    try {
+      await removeConnection(id);
+    } catch (err) {
+      console.error("Erro ao remover conexão:", err);
+      carregarDados();
+    }
   };
 
-  const handleAccept = (id: string) => {
+  const handleAccept = async (id: string) => {
     const person = pending.find((p) => p.id === id);
     if (person) {
       setConnections((prev) => [...prev, { ...person, status: "connected" }]);
       setPending((prev) => prev.filter((p) => p.id !== id));
     }
+    try {
+      await acceptRequest(id);
+      carregarDados();
+    } catch (err) {
+      console.error("Erro ao aceitar solicitação:", err);
+      carregarDados();
+    }
   };
 
-  const handleReject = (id: string) => {
+  const handleReject = async (id: string) => {
     setPending((prev) => prev.filter((p) => p.id !== id));
+    try {
+      await rejectRequest(id);
+    } catch (err) {
+      console.error("Erro ao recusar solicitação:", err);
+      carregarDados();
+    }
   };
 
-  const handleConnect = (id: string) => {
+  const handleConnect = async (id: string) => {
     setSentRequests((prev) => new Set(prev).add(id));
+    try {
+      await sendRequest(id);
+    } catch (err) {
+      console.error("Erro ao enviar solicitação:", err);
+    }
   };
 
   const currentData =
@@ -240,10 +247,7 @@ export default function RedeConexoesScreen() {
         ? pending
         : suggestions;
 
-  const emptyMessages: Record<
-    Tab,
-    { icon: keyof typeof Ionicons.glyphMap; text: string; sub: string }
-  > = {
+  const emptyMessages: Record<Tab, { icon: keyof typeof Ionicons.glyphMap; text: string; sub: string }> = {
     minhaRede: {
       icon: "people-outline",
       text: "Nenhuma conexão ainda",

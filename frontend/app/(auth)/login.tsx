@@ -12,10 +12,9 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { widthPercentageToDP as wp } from "react-native-responsive-screen";
+import { useAuth } from "../../contexts/AuthContext";
 import Colors from "../../constants/Colors";
 import styles from "./loginStyles";
-import { useAuth } from "../../contexts/AuthContext";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -49,37 +48,31 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <Ionicons
-              name="school"
-              size={wp("10%")}
-              color={Colors.primaryForeground}
-            />
+            <Ionicons name="log-in-outline" size={36} color={Colors.primaryForeground} />
           </View>
-          <Text style={styles.title}>Rede Social{"\n"}Acadêmica</Text>
-          <Text style={styles.subtitle}>
-            Conecte-se com estudantes e professores
-          </Text>
+          <Text style={styles.title}>Bem-vindo de volta</Text>
+          <Text style={styles.subtitle}>Entre na sua conta para continuar</Text>
         </View>
 
         <View style={styles.card}>
           <View style={styles.toggleContainer}>
-            <TouchableOpacity style={styles.toggleButtonActive}>
-              <Text style={styles.toggleTextActive}>Login</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={styles.toggleButtonInactive}
-              onPress={() => router.push("/(auth)/cadastro")}
+              onPress={() => router.replace("/(auth)/cadastro")}
             >
               <Text style={styles.toggleTextInactive}>Cadastro</Text>
             </TouchableOpacity>
+            <View style={styles.toggleButtonActive}>
+              <Text style={styles.toggleTextActive}>Login</Text>
+            </View>
           </View>
 
           <Text style={styles.label}>Email</Text>

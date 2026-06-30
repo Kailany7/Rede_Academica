@@ -12,10 +12,9 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { widthPercentageToDP as wp } from "react-native-responsive-screen";
+import { useAuth } from "../../contexts/AuthContext";
 import Colors from "../../constants/Colors";
 import styles from "./cadastroStyles";
-import { useAuth } from "../../contexts/AuthContext";
 
 interface FormData {
   nome: string;
@@ -76,40 +75,34 @@ export default function CadastroScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <Ionicons
-              name="school"
-              size={wp("10%")}
-              color={Colors.primaryForeground}
-            />
+            <Ionicons name="person-add-outline" size={36} color={Colors.primaryForeground} />
           </View>
-          <Text style={styles.title}>Rede Social{"\n"}Acadêmica</Text>
-          <Text style={styles.subtitle}>
-            Conecte-se com estudantes e professores
-          </Text>
+          <Text style={styles.title}>Crie sua conta</Text>
+          <Text style={styles.subtitle}>Junte-se à rede acadêmica</Text>
         </View>
 
         <View style={styles.card}>
           <View style={styles.toggleContainer}>
+            <View style={styles.toggleButtonActive}>
+              <Text style={styles.toggleTextActive}>Cadastro</Text>
+            </View>
             <TouchableOpacity
               style={styles.toggleButtonInactive}
-              onPress={() => router.push("/(auth)/login")}
+              onPress={() => router.replace("/(auth)/login")}
             >
               <Text style={styles.toggleTextInactive}>Login</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.toggleButtonActive}>
-              <Text style={styles.toggleTextActive}>Cadastro</Text>
-            </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>Nome completo</Text>
+          <Text style={styles.label}>Nome</Text>
           <TextInput
             style={styles.input}
             placeholder="Digite seu nome completo"

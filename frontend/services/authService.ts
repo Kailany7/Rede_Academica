@@ -21,6 +21,7 @@ export interface DadosCadastro {
   email: string;
   senha: string;
   curso: string;
+  semestre?: string;
   bio: string;
 }
 
