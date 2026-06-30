@@ -5,23 +5,62 @@ import { PostsProvider } from "../contexts/postContext";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isLoading, isAuthenticated } = useAuth();
+  const {
+    isLoading,
+    isAuthenticated,
+    usuario
+  } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
+
     if (isLoading) return;
+
 
     const inAuthGroup = segments[0] === "(auth)";
 
+
     if (!isAuthenticated && !inAuthGroup) {
-      // Não logado e tentando acessar tela protegida → vai pro login
+
       router.replace("/(auth)/login");
-    } else if (isAuthenticated && inAuthGroup) {
-      // Já logado e está na tela de login/cadastro → vai pro feed
-      router.replace("/(app)/(tabs)/feed");
+
+      return;
     }
-  }, [isLoading, isAuthenticated, segments]);
+
+
+
+    if (
+      isAuthenticated &&
+      usuario &&
+      usuario.onboardingCompleto === false &&
+      !segments.includes("onboarding")
+    ) {
+
+      router.replace("/(auth)/onboarding");
+
+      return;
+    }
+
+
+
+    if (
+      isAuthenticated &&
+      inAuthGroup &&
+      usuario?.onboardingCompleto
+    ) {
+
+      router.replace("/(app)/(tabs)/feed");
+
+    }
+
+
+  }, [
+    isLoading,
+    isAuthenticated,
+    usuario,
+    segments
+  ]);
 
   if (isLoading) {
     return (

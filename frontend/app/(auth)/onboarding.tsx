@@ -24,8 +24,13 @@ import {
 // Cores do projeto
 import Colors from '../../constants/Colors'
 
+import { api } from "../../services/api";
+import { useAuth } from "../../contexts/AuthContext";
+
 export default function OnboardingScreen() {
   const router = useRouter();
+
+  const { usuario, atualizarUsuario } = useAuth();
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -53,10 +58,29 @@ export default function OnboardingScreen() {
     },
   ];
 
-  const handleFinish = () => {
-    router.replace('/(app)/(tabs)/feed');
-  };
+  const handleFinish = async () => {
 
+    try {
+
+      await api.patch("/onboarding/complete");
+
+
+      atualizarUsuario({
+        ...usuario!,
+        onboardingCompleto: true
+      });
+
+
+      router.replace('/(app)/(tabs)/feed');
+
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  };
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);

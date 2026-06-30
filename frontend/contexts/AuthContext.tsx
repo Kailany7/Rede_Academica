@@ -20,6 +20,7 @@ interface AuthContextData {
   login: (dados: DadosLogin) => Promise<void>;
   cadastrar: (dados: DadosCadastro) => Promise<void>;
   logout: () => Promise<void>;
+  atualizarUsuario: (usuario: UsuarioLogado) => void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -67,6 +68,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUsuario(null);
   }
 
+  function atualizarUsuario(usuarioAtualizado: UsuarioLogado) {
+
+    setUsuario(usuarioAtualizado);
+
+    AsyncStorage.setItem(
+      "@usuario",
+      JSON.stringify(usuarioAtualizado)
+    );
+
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -76,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         cadastrar,
         logout,
+        atualizarUsuario
       }}
     >
       {children}
